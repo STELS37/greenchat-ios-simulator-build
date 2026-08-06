@@ -1,0 +1,86 @@
+name: build-greenchat-ios-simulator
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select stable Xcode 26
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcode_app="$(python3 - <<'PY'
+          import pathlib, re
+          rows=[]
+          for path in pathlib.Path('/Applications').glob('Xcode_26*.app'):
+              if path.is_symlink() or 'beta' in path.name.lower() or 'rc' in path.name.lower():
+                  continue
+              m=re.fullmatch(r'Xcode_(\d+(?:\.\d+)*)\.app', path.name)
+              if m:
+                  rows.append((tuple(map(int,m.group(1).split('.'))),str(path)))
+          if not rows:
+              raise SystemExit('Xcode 26 not installed')
+          print(max(rows)[1])
+          PY
+          )"
+          echo "DEVELOPER_DIR=$xcode_app/Contents/Developer" >> "$GITHUB_ENV"
+          export DEVELOPER_DIR="$xcode_app/Contents/Developer"
+          xcodebuild -version
+          test "$(xcodebuild -version | awk 'NR==1{print $2}' | cut -d. -f1)" -ge 26
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install native package dependencies
+        working-directory: mobile
+        run: npm ci --ignore-scripts
+
+      - name: Compile ARM iOS Simulator app
+        working-directory: mobile/ios/App
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            ARCHS=arm64 \
+            PRODUCT_BUNDLE_IDENTIFIER=app.greenchat \
+            build | tee "$RUNNER_TEMP/xcodebuild-simulator.log"
+          app="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          test -n "$app" -a -d "$app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Info.plist")" = app.greenchat
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = 1000044
+          executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")"
+          test -x "$app/$executable"
+          lipo -info "$app/$executable" | tee "$RUNNER_TEMP/architectures.txt"
+          cp -R "$app" "$RUNNER_TEMP/GreenChat.app"
+          cd "$RUNNER_TEMP"
+          /usr/bin/zip -qry GreenChat-iOS-Simulator.zip GreenChat.app
+          unzip -t GreenChat-iOS-Simulator.zip | tee simulator-zip-verify.txt
+          shasum -a 256 GreenChat-iOS-Simulator.zip > GreenChat-iOS-Simulator.zip.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GreenChat-iOS-Simulator
+          path: |
+            ${{ runner.temp }}/GreenChat-iOS-Simulator.zip
+            ${{ runner.temp }}/GreenChat-iOS-Simulator.zip.sha256
+            ${{ runner.temp }}/architectures.txt
+            ${{ runner.temp }}/simulator-zip-verify.txt
+          if-no-files-found: error
+          retention-days: 14
