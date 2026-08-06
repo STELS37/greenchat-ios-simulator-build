@@ -2,13 +2,25 @@ name: build-greenchat-ios-simulator
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: macos-15-intel
     timeout-minutes: 45
+    env:
+      RELEASE_TAG: ios-simulator-1.0.0-build-1000048-transparent-tabbar
+      RELEASE_ASSET: GreenChat-iOS-Simulator-Transparent-Tab-Bar.zip
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout without marketplace actions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch main \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" source
+          cd source
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git status --short
 
       - name: Select stable Xcode 26
         shell: bash
@@ -30,25 +42,24 @@ jobs:
           )"
           echo "DEVELOPER_DIR=$xcode_app/Contents/Developer" >> "$GITHUB_ENV"
           export DEVELOPER_DIR="$xcode_app/Contents/Developer"
-          xcodebuild -version
+          xcodebuild -version | tee "$RUNNER_TEMP/xcode-version.txt"
           test "$(xcodebuild -version | awk 'NR==1{print $2}' | cut -d. -f1)" -ge 26
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.22.0'
-          cache: npm
-          cache-dependency-path: mobile/package-lock.json
+          node --version
+          npm --version
+          gh --version | head -1
 
       - name: Install native package dependencies
-        working-directory: mobile
-        run: npm ci --ignore-scripts
-
-      - name: Compile ARM iOS Simulator app
-        working-directory: mobile/ios/App
         shell: bash
         run: |
           set -euo pipefail
-          set -o pipefail
+          cd source/mobile
+          npm ci --ignore-scripts
+
+      - name: Compile universal iOS Simulator app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile/ios/App
           xcodebuild \
             -project App.xcodeproj \
             -scheme App \
@@ -68,13 +79,16 @@ jobs:
           executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")"
           test -x "$app/$executable"
           lipo -info "$app/$executable" | tee "$RUNNER_TEMP/architectures.txt"
+          lipo -verify_arch arm64 x86_64 "$app/$executable"
+          strings "$app/$executable" | grep -F 'gc-liquid-glass-tab-bar'
+          strings "$app/$executable" | grep -F 'configureWithTransparentBackground'
           cp -R "$app" "$RUNNER_TEMP/GreenChat.app"
           cd "$RUNNER_TEMP"
           /usr/bin/zip -qry GreenChat-iOS-Simulator.zip GreenChat.app
           unzip -t GreenChat-iOS-Simulator.zip | tee simulator-zip-verify.txt
           shasum -a 256 GreenChat-iOS-Simulator.zip > GreenChat-iOS-Simulator.zip.sha256
 
-      - name: Launch on an iOS 26 virtual iPhone and capture the native tab bar
+      - name: Launch on iOS 26 Simulator
         shell: bash
         run: |
           set -euo pipefail
@@ -101,34 +115,52 @@ jobs:
           ]) + "\n")
           PYCODE
           source "$RUNNER_TEMP/sim-target.env"
-          udid="$(xcrun simctl create GreenChat-Liquid-Glass "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
-          echo "GC_SIM_UDID=$udid" >> "$GITHUB_ENV"
+          udid="$(xcrun simctl create GreenChat-Transparent-Tab-Bar "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
           trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true; xcrun simctl delete "$udid" >/dev/null 2>&1 || true' EXIT
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" -b
-          xcrun simctl ui "$udid" appearance light || true
           xcrun simctl install "$udid" "$RUNNER_TEMP/GreenChat.app"
           xcrun simctl launch --terminate-running-process "$udid" app.greenchat | tee "$RUNNER_TEMP/simulator-launch.txt"
           sleep 12
           xcrun simctl get_app_container "$udid" app.greenchat app | tee "$RUNNER_TEMP/simulator-app-container.txt"
-          xcrun simctl io "$udid" screenshot --type=png "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png"
-          /usr/bin/sips -g pixelWidth -g pixelHeight "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png" \
-            | tee "$RUNNER_TEMP/screenshot-metadata.txt"
           printf 'device=%s\nruntime=%s\n' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME" \
             | tee "$RUNNER_TEMP/simulator-target.txt"
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: GreenChat-iOS-Simulator
-          path: |
-            ${{ runner.temp }}/GreenChat-iOS-Simulator.zip
-            ${{ runner.temp }}/GreenChat-iOS-Simulator.zip.sha256
-            ${{ runner.temp }}/architectures.txt
-            ${{ runner.temp }}/simulator-zip-verify.txt
-            ${{ runner.temp }}/greenchat-ios26-liquid-glass.png
-            ${{ runner.temp }}/screenshot-metadata.txt
-            ${{ runner.temp }}/simulator-target.txt
-            ${{ runner.temp }}/simulator-launch.txt
-            ${{ runner.temp }}/simulator-app-container.txt
-          if-no-files-found: error
-          retention-days: 14
+      - name: Publish verified ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/GreenChat-iOS-Simulator.zip" "$RUNNER_TEMP/$RELEASE_ASSET"
+          checksum="$(shasum -a 256 "$RUNNER_TEMP/$RELEASE_ASSET" | awk '{print $1}')"
+          printf '%s  %s\n' "$checksum" "$RELEASE_ASSET" > "$RUNNER_TEMP/$RELEASE_ASSET.sha256"
+          notes="$RUNNER_TEMP/release-notes.md"
+          cat > "$notes" <<EOF
+          GreenChat 1.0.0 build 1000048.
+
+          - Compiled with Xcode 26+ for iOS Simulator.
+          - Universal simulator binary: arm64 + x86_64.
+          - The large grey outer UITabBar capsule, material, separator and shadow are removed.
+          - Only the navigation items and active selection remain above the continuing app screen.
+          - Authentication gating remains enabled: tabs are hidden before login.
+          - SHA-256: $checksum
+          EOF
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+              "$RUNNER_TEMP/$RELEASE_ASSET" \
+              "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \
+              "$RUNNER_TEMP/architectures.txt" \
+              "$RUNNER_TEMP/xcode-version.txt" \
+              "$RUNNER_TEMP/simulator-target.txt"
+            gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --notes-file "$notes"
+          else
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title 'GreenChat iOS Simulator — Transparent Tab Bar' \
+              --notes-file "$notes" \
+              "$RUNNER_TEMP/$RELEASE_ASSET" \
+              "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \
+              "$RUNNER_TEMP/architectures.txt" \
+              "$RUNNER_TEMP/xcode-version.txt" \
+              "$RUNNER_TEMP/simulator-target.txt"
+          fi
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets | jq .
