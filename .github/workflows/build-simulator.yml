@@ -74,6 +74,53 @@ jobs:
           unzip -t GreenChat-iOS-Simulator.zip | tee simulator-zip-verify.txt
           shasum -a 256 GreenChat-iOS-Simulator.zip > GreenChat-iOS-Simulator.zip.sha256
 
+      - name: Launch on an iOS 26 virtual iPhone and capture the native tab bar
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun simctl list -j > "$RUNNER_TEMP/simctl-inventory.json"
+          python3 - "$RUNNER_TEMP/simctl-inventory.json" "$RUNNER_TEMP/sim-target.env" <<'PYCODE'
+          import json, pathlib, sys
+          inventory = json.loads(pathlib.Path(sys.argv[1]).read_text())
+          runtimes = [
+              row for row in inventory.get("runtimes", [])
+              if row.get("isAvailable") and ".iOS-" in row.get("identifier", "")
+              and int(row.get("version", "0").split(".")[0]) >= 26
+          ]
+          if not runtimes:
+              raise SystemExit("no available iOS 26+ Simulator runtime")
+          runtimes.sort(key=lambda row: tuple(int(part) for part in row["version"].split(".")), reverse=True)
+          devices = [row for row in inventory.get("devicetypes", []) if row.get("name", "").startswith("iPhone")]
+          preferred_names = ["iPhone 17 Pro", "iPhone 16 Pro", "iPhone 15 Pro"]
+          device = next((row for name in preferred_names for row in devices if row.get("name") == name), devices[0])
+          pathlib.Path(sys.argv[2]).write_text(
+              f"GC_SIM_RUNTIME={runtimes[0]['identifier']}
+"
+              f"GC_SIM_RUNTIME_NAME={runtimes[0]['name']}
+"
+              f"GC_SIM_DEVICE_TYPE={device['identifier']}
+"
+              f"GC_SIM_DEVICE_NAME={device['name']}
+"
+          )
+          PYCODE
+          source "$RUNNER_TEMP/sim-target.env"
+          udid="$(xcrun simctl create GreenChat-Liquid-Glass "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
+          echo "GC_SIM_UDID=$udid" >> "$GITHUB_ENV"
+          trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true; xcrun simctl delete "$udid" >/dev/null 2>&1 || true' EXIT
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl ui "$udid" appearance light || true
+          xcrun simctl install "$udid" "$RUNNER_TEMP/GreenChat.app"
+          xcrun simctl launch --terminate-running-process "$udid" app.greenchat | tee "$RUNNER_TEMP/simulator-launch.txt"
+          sleep 12
+          xcrun simctl get_app_container "$udid" app.greenchat app | tee "$RUNNER_TEMP/simulator-app-container.txt"
+          xcrun simctl io "$udid" screenshot --type=png "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png"
+          /usr/bin/sips -g pixelWidth -g pixelHeight "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png"             | tee "$RUNNER_TEMP/screenshot-metadata.txt"
+          printf 'device=%s
+runtime=%s
+' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME"             | tee "$RUNNER_TEMP/simulator-target.txt"
+
       - uses: actions/upload-artifact@v4
         with:
           name: GreenChat-iOS-Simulator
@@ -82,5 +129,10 @@ jobs:
             ${{ runner.temp }}/GreenChat-iOS-Simulator.zip.sha256
             ${{ runner.temp }}/architectures.txt
             ${{ runner.temp }}/simulator-zip-verify.txt
+            ${{ runner.temp }}/greenchat-ios26-liquid-glass.png
+            ${{ runner.temp }}/screenshot-metadata.txt
+            ${{ runner.temp }}/simulator-target.txt
+            ${{ runner.temp }}/simulator-launch.txt
+            ${{ runner.temp }}/simulator-app-container.txt
           if-no-files-found: error
           retention-days: 14

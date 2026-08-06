@@ -23,6 +23,7 @@
   .gc-settings-header,
   .gc-chat-header,
   .gc-composer,
+  .gc-app-rail,
   .gc-shell-nav,
   .gc-bottom-nav,
   .gc-tabs
@@ -69,6 +70,108 @@
 
 :root[data-gc-native-shell="ios"] .gc-composer {
   padding-bottom: max(var(--gc-native-safe-bottom, 0px), env(safe-area-inset-bottom));
+}
+
+/* The shared mobile shell paints the opaque surface on .gc-app-rail, not on .gc-shell-nav.
+   iOS 26 replaces that HTML rail with a real UIKit UITabBar, which receives the system Liquid Glass
+   rendering automatically. iOS 15–25 keep a deliberately floating CSS material rather than the old
+   full-width white rectangle. */
+@media (max-width: 760px) {
+  :root[data-gc-native-shell="ios"] {
+    --gc-ios-tabbar-reserve: calc(78px + var(--gc-safe-bottom, 0px));
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) {
+    --gc-mobile-nav: var(--gc-ios-tabbar-reserve);
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) .gc-app-rail {
+    inset: auto max(8px, var(--gc-safe-right, 0px)) max(7px, var(--gc-safe-bottom, 0px))
+      max(8px, var(--gc-safe-left, 0px));
+    width: auto;
+    height: 64px;
+    padding: 6px 8px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, #ffffff 46%, var(--gc-ios-glass-border));
+    border-radius: 28px;
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.30), rgb(255 255 255 / 0.08)),
+      color-mix(in srgb, var(--gc-bg-elevated, #ffffff) 44%, transparent);
+    box-shadow:
+      0 18px 46px rgb(15 23 42 / 0.18),
+      0 2px 10px rgb(15 23 42 / 0.08),
+      inset 0 1px 0 rgb(255 255 255 / 0.78),
+      inset 0 -1px 0 rgb(255 255 255 / 0.18);
+    -webkit-backdrop-filter: blur(30px) saturate(190%) contrast(1.03);
+    backdrop-filter: blur(30px) saturate(190%) contrast(1.03);
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) .gc-app-rail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(80% 54% at 18% 0%, rgb(255 255 255 / 0.50), transparent 72%),
+      linear-gradient(110deg, transparent 18%, rgb(255 255 255 / 0.16) 46%, transparent 72%);
+    mix-blend-mode: screen;
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) .gc-shell-nav {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) .gc-shell-item {
+    border: 1px solid transparent;
+    border-radius: 20px;
+    background: transparent;
+    transition:
+      transform 130ms ease,
+      color 160ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) .gc-shell-item.is-active {
+    color: color-mix(in srgb, var(--gc-accent-strong, #087443) 88%, #06150e);
+    border-color: color-mix(in srgb, var(--gc-accent, #16a765) 34%, rgb(255 255 255 / 0.48));
+    background:
+      linear-gradient(155deg, rgb(255 255 255 / 0.34), transparent 58%),
+      color-mix(in srgb, var(--gc-accent, #16a765) 20%, transparent);
+    box-shadow:
+      0 7px 18px color-mix(in srgb, var(--gc-accent, #16a765) 20%, transparent),
+      inset 0 1px 0 rgb(255 255 255 / 0.56);
+  }
+
+  :root[data-gc-native-shell="ios"]:not([data-gc-native-tabbar="ios26"]) .gc-shell-item.is-active .gc-shell-item-icon {
+    color: currentColor;
+    border: 1px solid rgb(255 255 255 / 0.42);
+    background:
+      linear-gradient(145deg, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0.08)),
+      color-mix(in srgb, var(--gc-accent, #16a765) 23%, transparent);
+    box-shadow:
+      0 5px 14px color-mix(in srgb, var(--gc-accent, #16a765) 18%, transparent),
+      inset 0 1px 0 rgb(255 255 255 / 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
+    backdrop-filter: blur(16px) saturate(170%);
+  }
+
+  /* UIKit owns the visible iOS 26 tab bar. The web layout still reserves exactly its system height,
+     but the duplicate HTML bar is removed so there can never be two rows of tabs. */
+  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] {
+    --gc-mobile-nav: calc(50px + var(--gc-safe-bottom, 0px));
+  }
+
+  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] .gc-app-rail {
+    display: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

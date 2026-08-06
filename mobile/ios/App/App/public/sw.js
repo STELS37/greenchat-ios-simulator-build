@@ -8,11 +8,11 @@
 //   - push → showNotification; click → focus/open the target chat deep link.
 "use strict";
 
-const VERSION = "GTC7U7QJ";
+const VERSION = "HOMBXL4V";
 const SHELL_CACHE = "gc-shell-" + VERSION;
 // Deleted on activation for upgrades from builds that cached private /v1/files responses by URL.
 const LEGACY_MEDIA_CACHE = "gc-media-v1";
-const PRECACHE = ["/","/index.html","/assets/app.GTC7U7QJ.js","/assets/app.RDIU5UWU.css","/assets/chunk.3R52YSER.js","/assets/chunk.3UPOALN5.js","/assets/chunk.4OPZWSUS.js","/assets/chunk.4SGRZRDJ.js","/assets/chunk.553VKZ52.js","/assets/chunk.BLCH77FZ.js","/assets/chunk.BTZI4SSB.js","/assets/chunk.C34KMXTG.js","/assets/chunk.CEFR7CUJ.js","/assets/chunk.FKMGW3JX.js","/assets/chunk.HDQ6PTY5.js","/assets/chunk.ITD6Q2B4.js","/assets/chunk.IXH3XKUI.js","/assets/chunk.KKKMLQPZ.js","/assets/chunk.KQS4EBIX.js","/assets/chunk.LTA4DV3D.js","/assets/chunk.OCXFFSUD.js","/assets/chunk.OTPFWLJS.js","/assets/chunk.R6MNQPFC.js","/assets/chunk.RPWKWGH5.js","/assets/chunk.UKNGYS6X.js","/assets/chunk.W6ZJBB3H.js","/assets/chunk.WAYP7RHX.js","/manifest.webmanifest","/icon.svg","/icon-maskable.svg","/apple-touch-icon.svg","/favicon.svg","/site-loader.js?v=d5df6cf506a17b111e8a4a1c94b9dc3c00a65d54","/downloads.json?v=d5df6cf506a17b111e8a4a1c94b9dc3c00a65d54","/site.css?v=d5df6cf506a17b111e8a4a1c94b9dc3c00a65d54"];
+const PRECACHE = ["/","/index.html","/assets/app.HOMBXL4V.js","/assets/app.RDIU5UWU.css","/assets/chunk.3R52YSER.js","/assets/chunk.3UPOALN5.js","/assets/chunk.4OPZWSUS.js","/assets/chunk.4SGRZRDJ.js","/assets/chunk.553VKZ52.js","/assets/chunk.BLCH77FZ.js","/assets/chunk.BTZI4SSB.js","/assets/chunk.C34KMXTG.js","/assets/chunk.CEFR7CUJ.js","/assets/chunk.FFUW5R4W.js","/assets/chunk.FKMGW3JX.js","/assets/chunk.GX6UQENF.js","/assets/chunk.HDQ6PTY5.js","/assets/chunk.ITD6Q2B4.js","/assets/chunk.IXH3XKUI.js","/assets/chunk.KKKMLQPZ.js","/assets/chunk.KQS4EBIX.js","/assets/chunk.LTA4DV3D.js","/assets/chunk.OCXFFSUD.js","/assets/chunk.OTPFWLJS.js","/assets/chunk.R6MNQPFC.js","/assets/chunk.RPWKWGH5.js","/assets/chunk.UKNGYS6X.js","/assets/chunk.W6ZJBB3H.js","/assets/chunk.WAYP7RHX.js","/manifest.webmanifest","/icon.svg","/icon-maskable.svg","/apple-touch-icon.svg","/favicon.svg","/site-loader.js?v=ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c","/downloads.json?v=ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c","/site.css?v=ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c"];
 
 // ---- lifecycle ----------------------------------------------------------------------------------
 
@@ -219,6 +219,12 @@ function renderNotification(payload, mode, hooks) {
     data: { chat_id: chatId, message_id: p.message_id, kind },
     renotify: isCall,
   };
+  if (isCall) {
+    options.actions = [
+      { action: "answer", title: "Ответить" },
+      { action: "decline", title: "Отклонить" },
+    ];
+  }
   // Ordinary messages coalesce per chat; calls never coalesce, so every ring attempt stays visible.
   if (!isCall && chatId !== undefined && chatId !== null) options.tag = "gc-chat-" + String(chatId);
   return { title, options };
@@ -256,25 +262,43 @@ self.addEventListener("push", (event) => {
   })());
 });
 
-function notificationTarget(data) {
+function callNotificationAction(raw, data) {
+  const d = data && typeof data === "object" ? data : {};
+  if (d.kind !== "call" || (raw !== "answer" && raw !== "decline")) return null;
+  const chatId = Number(d.chat_id);
+  if (!Number.isSafeInteger(chatId) || chatId <= 0) return null;
+  return { action: raw, chat_id: chatId, received_at: Date.now() };
+}
+
+function notificationTarget(data, action) {
   const d = data && typeof data === "object" ? data : {};
   const chatId = Number(d.chat_id);
   const messageId = Number(d.message_id);
   if (!Number.isSafeInteger(chatId) || chatId <= 0) return "/?app=1#/";
-  const chat = "/?app=1#/chat/" + chatId;
+  const actionQuery = action ? "&gc_call_action=" + action.action + "&gc_call_chat=" + chatId : "";
+  const chat = "/?app=1" + actionQuery + "#/chat/" + chatId;
   return Number.isSafeInteger(messageId) && messageId > 0 ? chat + "/message/" + messageId : chat;
 }
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = notificationTarget(event.notification.data);
+  const data = event.notification.data;
+  const action = callNotificationAction(event.action, data);
+  const target = notificationTarget(data, action);
   event.waitUntil((async () => {
     const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const win of wins) {
-      if ("focus" in win) {
-        try { if ("navigate" in win) await win.navigate(target); } catch (_err) { /* cross-origin nav guard */ }
-        return win.focus();
+      if (!("focus" in win)) continue;
+      if (action && "postMessage" in win) {
+        let posted = false;
+        try {
+          win.postMessage({ type: "gc.call.notification.action", ...action });
+          posted = true;
+        } catch (_err) { /* fall through to the cold-start navigation payload */ }
+        if (posted) return win.focus();
       }
+      try { if ("navigate" in win) await win.navigate(target); } catch (_err) { /* cross-origin nav guard */ }
+      return win.focus();
     }
     if (self.clients.openWindow) return self.clients.openWindow(target);
     return undefined;

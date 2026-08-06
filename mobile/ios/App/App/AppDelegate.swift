@@ -1,14 +1,16 @@
 import UIKit
 import Capacitor
+import WebKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScriptMessageHandler {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         gcInstallPrivacyShield()
+        gcInstallLiquidGlassTabBarIfAvailable()
         #if DEBUG
         // GC_IOS_SIMULATOR_MEDIA_PROBE
         GCSimulatorMediaProbe.runIfRequested()
@@ -92,6 +94,122 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             values.isExcludedFromBackup = true
             try? url.setResourceValues(values)
         }
+    }
+
+
+    // GC_IOS26_LIQUID_GLASS_TAB_BAR
+    private weak var gcLiquidGlassTabBar: UITabBar?
+    private weak var gcLiquidGlassBridgeController: CAPBridgeViewController?
+    private var gcLiquidGlassInstallAttempts = 0
+    private let gcLiquidGlassRoutes = ["/", "/calls", "/contacts", "/wallet", "/settings"]
+    private static let gcLiquidGlassHandler = "gcNativeTabBar"
+
+    private func gcInstallLiquidGlassTabBarIfAvailable() {
+        guard #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone else { return }
+        guard gcLiquidGlassTabBar == nil else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.gcTryInstallLiquidGlassTabBar()
+        }
+    }
+
+    private func gcTryInstallLiquidGlassTabBar() {
+        guard #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone else { return }
+        guard gcLiquidGlassTabBar == nil else { return }
+        guard let window = self.window,
+              let root = window.rootViewController,
+              let bridgeController = gcFindBridgeController(root),
+              let webView = bridgeController.bridge?.webView else {
+            gcLiquidGlassInstallAttempts += 1
+            if gcLiquidGlassInstallAttempts < 40 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                    self?.gcTryInstallLiquidGlassTabBar()
+                }
+            }
+            return
+        }
+
+        let russian = Locale.preferredLanguages.first?.lowercased().hasPrefix("ru") == true
+        let titles = russian
+            ? ["Чаты", "Звонки", "Контакты", "Кошелёк", "Ещё"]
+            : ["Chats", "Calls", "Contacts", "Wallet", "More"]
+        let symbols = ["message.fill", "phone.fill", "person.2.fill", "creditcard.fill", "ellipsis"]
+        let tabBar = UITabBar(frame: .zero)
+        tabBar.translatesAutoresizingMaskIntoConstraints = false
+        tabBar.delegate = self
+        tabBar.tintColor = UIColor.systemGreen
+        tabBar.unselectedItemTintColor = UIColor.secondaryLabel
+        tabBar.itemPositioning = .fill
+        tabBar.accessibilityIdentifier = "gc-liquid-glass-tab-bar"
+        tabBar.items = titles.indices.map { index in
+            UITabBarItem(title: titles[index], image: UIImage(systemName: symbols[index]), tag: index)
+        }
+        tabBar.selectedItem = tabBar.items?.first
+
+        bridgeController.view.addSubview(tabBar)
+        let safeBottom = max(bridgeController.view.safeAreaInsets.bottom, window.safeAreaInsets.bottom)
+        NSLayoutConstraint.activate([
+            tabBar.leadingAnchor.constraint(equalTo: bridgeController.view.leadingAnchor),
+            tabBar.trailingAnchor.constraint(equalTo: bridgeController.view.trailingAnchor),
+            tabBar.bottomAnchor.constraint(equalTo: bridgeController.view.bottomAnchor),
+            tabBar.heightAnchor.constraint(equalToConstant: 50 + safeBottom),
+        ])
+        bridgeController.view.bringSubviewToFront(tabBar)
+        gcLiquidGlassBridgeController = bridgeController
+        gcLiquidGlassTabBar = tabBar
+
+        let controller = webView.configuration.userContentController
+        controller.removeScriptMessageHandler(forName: Self.gcLiquidGlassHandler)
+        controller.add(self, name: Self.gcLiquidGlassHandler)
+        let bootstrap = """
+        (() => {
+          const publish = () => window.webkit?.messageHandlers?.gcNativeTabBar?.postMessage(window.location.hash || '#/');
+          if (document.documentElement) document.documentElement.setAttribute('data-gc-native-tabbar', 'ios26');
+          if (window.__gcNativeTabBarListener) window.removeEventListener('hashchange', window.__gcNativeTabBarListener);
+          window.__gcNativeTabBarListener = publish;
+          window.addEventListener('hashchange', publish);
+          publish();
+        })();
+        """
+        controller.addUserScript(WKUserScript(source: bootstrap, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        webView.evaluateJavaScript(bootstrap)
+    }
+
+    private func gcFindBridgeController(_ controller: UIViewController) -> CAPBridgeViewController? {
+        if let bridge = controller as? CAPBridgeViewController { return bridge }
+        for child in controller.children {
+            if let bridge = gcFindBridgeController(child) { return bridge }
+        }
+        return nil
+    }
+
+    private func gcSelectLiquidGlassTab(for hash: String) {
+        let path = hash.replacingOccurrences(of: "#", with: "").split(separator: "?", maxSplits: 1).first.map(String.init) ?? "/"
+        let index: Int
+        if path == "/calls" || path.hasPrefix("/call/") {
+            index = 1
+        } else if path == "/contacts" {
+            index = 2
+        } else if path == "/wallet" || path == "/exchange" || path == "/cards" {
+            index = 3
+        } else if path == "/" || path.hasPrefix("/chat/") {
+            index = 0
+        } else {
+            index = 4
+        }
+        guard let items = gcLiquidGlassTabBar?.items, items.indices.contains(index) else { return }
+        gcLiquidGlassTabBar?.selectedItem = items[index]
+    }
+
+    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        guard tabBar === gcLiquidGlassTabBar, gcLiquidGlassRoutes.indices.contains(item.tag) else { return }
+        let route = gcLiquidGlassRoutes[item.tag]
+        let hash = route == "/" ? "#/" : "#\(route)"
+        gcLiquidGlassBridgeController?.bridge?.webView?.evaluateJavaScript("window.location.hash = '\(hash)';")
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == Self.gcLiquidGlassHandler, let hash = message.body as? String else { return }
+        gcSelectLiquidGlassTab(for: hash)
     }
 
 }
