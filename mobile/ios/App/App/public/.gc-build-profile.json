@@ -1,6 +1,6 @@
 {
   "algorithm": "sha256",
-  "build_id": "native-liquidglass-only-1000052",
+  "build_id": "fed5698b3923113c4006641083dccb5c75ad9dcb",
   "bundled_npm_packages": [
     "libsodium-sumo",
     "libsodium-wrappers-sumo",
@@ -19,24 +19,24 @@
       "size": 639
     },
     {
-      "path": "assets/app.43QCO75S.js",
-      "sha256": "d330a753dc808fa87632a88894e655b1e5983469158540d5761124910ff45836",
-      "size": 676366
+      "path": "assets/app.6TQ5BVHA.css",
+      "sha256": "f2ea044828c81981fe822962bccdc2a7b00a63e321596764d76e54313fe2b2bc",
+      "size": 386214
     },
     {
-      "path": "assets/app.43QCO75S.js.map",
-      "sha256": "667fd77bb41c0635db8aa2eb4d9ffdca084331318a851cb191ecc9dde47dc68c",
-      "size": 3026910
+      "path": "assets/app.6TQ5BVHA.css.map",
+      "sha256": "52b6556ee4e614e6abc0cfc32bb975336f7107834f0d8a0039b203995eef0e39",
+      "size": 1096076
     },
     {
-      "path": "assets/app.U76ZT57F.css",
-      "sha256": "b5d8b48a14a12537bf052ac2689df9966b0ab94f7088f1b259cde38ab771e004",
-      "size": 386801
+      "path": "assets/app.7BVARWSX.js",
+      "sha256": "6917799513e6f7b271cf0ce75400fd71e54e54304954336aa2f7b7b7b1637dc6",
+      "size": 676427
     },
     {
-      "path": "assets/app.U76ZT57F.css.map",
-      "sha256": "5f0355f0a4038c8019b6043aeccc132c024ed54f485f732569ce4ca5a6a2c920",
-      "size": 1094612
+      "path": "assets/app.7BVARWSX.js.map",
+      "sha256": "ddc80a141383f0029bc0a9aa436f84f851d44946a92d3c61527ac69c40b4f1f2",
+      "size": 3026911
     },
     {
       "path": "assets/call-incoming.mp3",
@@ -77,16 +77,6 @@
       "path": "assets/chunk.35IEINZH.js.map",
       "sha256": "c85ff4dd362e2fa2b08a164038651a020ce11c9435398fb79e615c91b1324c8c",
       "size": 17449
-    },
-    {
-      "path": "assets/chunk.3R52YSER.js",
-      "sha256": "67b15241dd14bc94a8fdce1aad8547de7e7f994f40990517639845cc3bb426f3",
-      "size": 1351
-    },
-    {
-      "path": "assets/chunk.3R52YSER.js.map",
-      "sha256": "c0a3dee0a8027548316acf9e03351a92051fe736355b05a9573afcfa83d288ba",
-      "size": 5190
     },
     {
       "path": "assets/chunk.3UPOALN5.js",
@@ -139,16 +129,6 @@
       "size": 35003
     },
     {
-      "path": "assets/chunk.6N5GXXGJ.js",
-      "sha256": "ee2901f3c7daa0a58b62eb101827cb80f8f733fd49f853bd8020ad340d9afd51",
-      "size": 295
-    },
-    {
-      "path": "assets/chunk.6N5GXXGJ.js.map",
-      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
-      "size": 93
-    },
-    {
       "path": "assets/chunk.6TJSDRLL.js",
       "sha256": "1273ee7c72331289caae5700a3e159c55172e0af34565832b00909f907561085",
       "size": 5696
@@ -177,16 +157,6 @@
       "path": "assets/chunk.76LTX3MF.js.map",
       "sha256": "6438ac86b0b8e9e86c9971f36f8087f4c8e1804bce38df73daa4f10fa7e6ddb8",
       "size": 12611
-    },
-    {
-      "path": "assets/chunk.BGTZTF4E.css",
-      "sha256": "c3fd0881034078f565d99d7cb08324efd28e64dbe12edc095cfe83d619d48335",
-      "size": 27337
-    },
-    {
-      "path": "assets/chunk.BGTZTF4E.css.map",
-      "sha256": "5eb3906f83fa6e8c374f3df7faf96adf8114296eac86b085f9f10a0a06d2eed2",
-      "size": 56654
     },
     {
       "path": "assets/chunk.BLCH77FZ.js",
@@ -239,26 +209,6 @@
       "size": 22194
     },
     {
-      "path": "assets/chunk.DDWQCJTQ.js",
-      "sha256": "4952fb1e0496a57bbe3734a39df3a4e7d9df2bf0047a8b3fc2dfd60ca0a45ec1",
-      "size": 535570
-    },
-    {
-      "path": "assets/chunk.DDWQCJTQ.js.map",
-      "sha256": "a957f4ac95aeab515dd4b80cef1e8e8c005f275e37095324eb81fdc9bcf72fe7",
-      "size": 721899
-    },
-    {
-      "path": "assets/chunk.FBXINSTH.css",
-      "sha256": "280bd32c267c77fb55858e344c8a65485a7652b5665ef21fb69d86b2eb97f0ef",
-      "size": 3012
-    },
-    {
-      "path": "assets/chunk.FBXINSTH.css.map",
-      "sha256": "fa621f19150cdf9b8c8fee72cdbe518f403432d4b0c81a1b68eea9f067eb6aee",
-      "size": 6358
-    },
-    {
       "path": "assets/chunk.FEODXCHM.js",
       "sha256": "7b165473515a776477eb1b08606b6b998d8f0e23aba3fd5340428b5f47ef8723",
       "size": 12253
@@ -309,26 +259,6 @@
       "size": 93
     },
     {
-      "path": "assets/chunk.GPRQYYXA.js",
-      "sha256": "960dfe515b2b3390d1636f3619fcbc21fb190ae1b7bfa4e346de924fa2524490",
-      "size": 51677
-    },
-    {
-      "path": "assets/chunk.GPRQYYXA.js.map",
-      "sha256": "562192d262dbc8aa66f1bf373cf64392a648a7dea72f3349268fe6b709bc6b85",
-      "size": 240840
-    },
-    {
-      "path": "assets/chunk.GQHT4DPE.js",
-      "sha256": "2b6836c488b25e6749817789b0212d7bd20b10cba9d1ba6a21f851e259a277fe",
-      "size": 535235
-    },
-    {
-      "path": "assets/chunk.GQHT4DPE.js.map",
-      "sha256": "0cccd19b07aaac34a90142d607677c17f4afd5a66bf8b86d60be903a8642532f",
-      "size": 2071752
-    },
-    {
       "path": "assets/chunk.GX6UQENF.js",
       "sha256": "4585b68cb070c0fcc0c1e4d2a7d07c1239429042f2bb3321e6bf923082b4d266",
       "size": 6132
@@ -359,6 +289,16 @@
       "size": 2698
     },
     {
+      "path": "assets/chunk.JN4NGKOU.css",
+      "sha256": "dcae42ab1bcf676d02f258bab0e4b42835034ce07d1c18fc377fa694ed75aae5",
+      "size": 4829
+    },
+    {
+      "path": "assets/chunk.JN4NGKOU.css.map",
+      "sha256": "2e2308ba817f44da9d2a7e807260aa8465bd4f293d786e2f16eb8bbaf561c683",
+      "size": 12544
+    },
+    {
       "path": "assets/chunk.KKKMLQPZ.js",
       "sha256": "54f146f8f31136b4eb9b8dda6e691192c7abf5ddaf77873b182c0089529022ee",
       "size": 503
@@ -367,6 +307,16 @@
       "path": "assets/chunk.KKKMLQPZ.js.map",
       "sha256": "23048ec4682ebdc04b7e546808a53f7b3af6ecd7d8a0f111720eb1f9b2e55b36",
       "size": 3520
+    },
+    {
+      "path": "assets/chunk.KQ6OVQ2U.js",
+      "sha256": "8f94f3b90fea2a831dd4ea1ceac6fd1928f411737e7580b435218107a149f51e",
+      "size": 7387
+    },
+    {
+      "path": "assets/chunk.KQ6OVQ2U.js.map",
+      "sha256": "0b110ebfd58a0d8b438a6ce0a94bd89fbf443de4771348993a6dddba251137bb",
+      "size": 27368
     },
     {
       "path": "assets/chunk.KQS4EBIX.js",
@@ -409,6 +359,16 @@
       "size": 11168
     },
     {
+      "path": "assets/chunk.M64S32HV.js",
+      "sha256": "443782d18dc743dedc14c6779b974195b077c9c20bd786914fbad0894c1f2bd5",
+      "size": 295
+    },
+    {
+      "path": "assets/chunk.M64S32HV.js.map",
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "size": 93
+    },
+    {
       "path": "assets/chunk.MQV6I53B.js",
       "sha256": "518f245617d298311040f880ac6c9eb0368b0a2a12a4f87ea2f73dce0fa7c254",
       "size": 2337
@@ -417,16 +377,6 @@
       "path": "assets/chunk.MQV6I53B.js.map",
       "sha256": "af6e440129dd073225a7977557909f15c3ac913145b82425dd5a74c8f33bf85a",
       "size": 8095
-    },
-    {
-      "path": "assets/chunk.NZPTMXEZ.js",
-      "sha256": "dbe7615863c27a131b180adf36e5dfc0a7c23d2ecfe86368a9db712c9a26d662",
-      "size": 102
-    },
-    {
-      "path": "assets/chunk.NZPTMXEZ.js.map",
-      "sha256": "f52a8e63a5b897fa419db2574a111f2fadb947123f956f8d150c0f1485131779",
-      "size": 4299
     },
     {
       "path": "assets/chunk.O6PZ2TQV.js",
@@ -439,6 +389,16 @@
       "size": 33539
     },
     {
+      "path": "assets/chunk.OL7SEVSC.js",
+      "sha256": "0a464ff574a3bcffc346e5301a33a1bd9baa09e6b9bbb371ff52d580951e428b",
+      "size": 11319
+    },
+    {
+      "path": "assets/chunk.OL7SEVSC.js.map",
+      "sha256": "df13f9b43fa9c6800dd853a1b993abbc952cfa16b3b5dbf96f77b6a8d7f898a0",
+      "size": 46571
+    },
+    {
       "path": "assets/chunk.OTPFWLJS.js",
       "sha256": "1bea57efc6e9a3b4ba638f6157099258cd335cbb6cb429ac00445ae89e16340e",
       "size": 5803
@@ -447,6 +407,16 @@
       "path": "assets/chunk.OTPFWLJS.js.map",
       "sha256": "df313d9a7cc83a6b5726b56bd281d6ad3b46df53c1ee5129482e680fe82d41d7",
       "size": 43735
+    },
+    {
+      "path": "assets/chunk.PLODNJVY.js",
+      "sha256": "7c15c85827b7c7362c03453982f26346335123213603355fa1ab4369790569bd",
+      "size": 1351
+    },
+    {
+      "path": "assets/chunk.PLODNJVY.js.map",
+      "sha256": "c0a3dee0a8027548316acf9e03351a92051fe736355b05a9573afcfa83d288ba",
+      "size": 5190
     },
     {
       "path": "assets/chunk.R6MNQPFC.js",
@@ -479,26 +449,6 @@
       "size": 24678
     },
     {
-      "path": "assets/chunk.S7J426W2.js",
-      "sha256": "2b71e1d560b7cbe8f094491ee7cde33ec08644193ece985db58ba0574f8f389c",
-      "size": 7387
-    },
-    {
-      "path": "assets/chunk.S7J426W2.js.map",
-      "sha256": "0b110ebfd58a0d8b438a6ce0a94bd89fbf443de4771348993a6dddba251137bb",
-      "size": 27368
-    },
-    {
-      "path": "assets/chunk.SAJR275Z.js",
-      "sha256": "fa3110db2568fd4bb9c417a47258a09f72f9fbc084bd0a5ca74fb2e19d60d827",
-      "size": 102
-    },
-    {
-      "path": "assets/chunk.SAJR275Z.js.map",
-      "sha256": "4003b148c5e578a38f4eda3696499265680b368160471de82312ef73359b216f",
-      "size": 34628
-    },
-    {
       "path": "assets/chunk.TS36VDGK.js",
       "sha256": "80c8d337b77936ad3eaad0ee0e5ccfb7d51512d611bd57b242d2a9bf46bc250d",
       "size": 3130
@@ -519,6 +469,36 @@
       "size": 7191
     },
     {
+      "path": "assets/chunk.U54JO53T.js",
+      "sha256": "6a0e987dcd32d3457336b35744593e4acddf5832c066d2a759802576fac74b3d",
+      "size": 51677
+    },
+    {
+      "path": "assets/chunk.U54JO53T.js.map",
+      "sha256": "562192d262dbc8aa66f1bf373cf64392a648a7dea72f3349268fe6b709bc6b85",
+      "size": 240840
+    },
+    {
+      "path": "assets/chunk.UAPOTK5Y.css",
+      "sha256": "3deebeff065d51e3fafa49312ceef363a20c3a73c3b6b4d8c6154768c2459b8c",
+      "size": 24933
+    },
+    {
+      "path": "assets/chunk.UAPOTK5Y.css.map",
+      "sha256": "f91729a3aff517f2723a51350c26f8ae10981c199695d3149c7415c821168891",
+      "size": 51932
+    },
+    {
+      "path": "assets/chunk.UB5L5IRJ.js",
+      "sha256": "1159c2b24bd9606281de1e688679825a257a41c1639d7c3a4cb26eb9a6eb395a",
+      "size": 19575
+    },
+    {
+      "path": "assets/chunk.UB5L5IRJ.js.map",
+      "sha256": "8da80987e4d8635836c8a126b5c3dc6ede3c4286d6671258312047aaa0372723",
+      "size": 63341
+    },
+    {
       "path": "assets/chunk.UD7PF76U.js",
       "sha256": "eb338b2e67af15a482dc8cb527e86ef64642bf3d024be5b66f4efdd004cda29a",
       "size": 21246
@@ -537,6 +517,16 @@
       "path": "assets/chunk.UDZJXVAR.js.map",
       "sha256": "6410f216cfcabddc6c2859e3321bfdd699c88731c96f091e3cecd2940aa8255b",
       "size": 6152
+    },
+    {
+      "path": "assets/chunk.UJYCSWZT.js",
+      "sha256": "e1be7881f03cd78cf5ad880896a7e5e31cd7b5d8fd99e12a6ae9009a9508d112",
+      "size": 535570
+    },
+    {
+      "path": "assets/chunk.UJYCSWZT.js.map",
+      "sha256": "490a46f54c1e74055a6179cd7bb665180b833f60647e377d5936f6e3c4199b36",
+      "size": 721817
     },
     {
       "path": "assets/chunk.UKNGYS6X.js",
@@ -589,14 +579,24 @@
       "size": 8692
     },
     {
-      "path": "assets/chunk.X7QT6AAH.js",
-      "sha256": "ab3c35a615ccbd58c061ee6b06e6580f27745363889dfc9693e6b56424600348",
-      "size": 19575
+      "path": "assets/chunk.WVQZ2OAO.js",
+      "sha256": "c8e8ec215588a1b3f4330449f2d5cde5d81e1047ae6be02aeb9fd1bc145c94fc",
+      "size": 102
     },
     {
-      "path": "assets/chunk.X7QT6AAH.js.map",
-      "sha256": "8da80987e4d8635836c8a126b5c3dc6ede3c4286d6671258312047aaa0372723",
-      "size": 63341
+      "path": "assets/chunk.WVQZ2OAO.js.map",
+      "sha256": "dfdf2286bf24d42970129c40b7aedb18850f69a97f46f34b86f51b1979451804",
+      "size": 31631
+    },
+    {
+      "path": "assets/chunk.YHIS6OLF.js",
+      "sha256": "95c3e4236b66e9f98ad47f63a317600660502950aaa9e2618157f87bc389b8ce",
+      "size": 102
+    },
+    {
+      "path": "assets/chunk.YHIS6OLF.js.map",
+      "sha256": "5cc1f0ab50aacb3cce46f50d314293241cc33f247f0bb4659f5a7f771de6ab72",
+      "size": 9064
     },
     {
       "path": "assets/chunk.YQ5SSI3W.js",
@@ -609,14 +609,14 @@
       "size": 261833
     },
     {
-      "path": "assets/chunk.Z4RRTJ6F.js",
-      "sha256": "18c8500e0f08d13dbba8d64ee15dd4b7041e387b87ca92f9a161e53919197c93",
-      "size": 11319
+      "path": "assets/chunk.YZTP4ENB.js",
+      "sha256": "671cd60c5e1fd9130923b140489727da9e01bd170d8d9ee06484aa360ad5ccc3",
+      "size": 535235
     },
     {
-      "path": "assets/chunk.Z4RRTJ6F.js.map",
-      "sha256": "df13f9b43fa9c6800dd853a1b993abbc952cfa16b3b5dbf96f77b6a8d7f898a0",
-      "size": 46571
+      "path": "assets/chunk.YZTP4ENB.js.map",
+      "sha256": "58561816dada250e7c06e2102a4a07eb0051eb8a2a224c72ced6c49f838ccf92",
+      "size": 2065356
     },
     {
       "path": "assets/chunk.ZYZUFB2N.js",
@@ -639,14 +639,14 @@
       "size": 11238
     },
     {
-      "path": "assets/tg_import.worker.A5RFJGE6.js",
-      "sha256": "2cc6eba3c579ebf01043bb1d72ab445350059043c037a750df46ade99eb27ec3",
+      "path": "assets/tg_import.worker.LSNT55MX.js",
+      "sha256": "80c8a902d93e68bbadb2f253b09fd52df4f459a8dae69e7aff79b53ef2049a49",
       "size": 540770
     },
     {
-      "path": "assets/tg_import.worker.A5RFJGE6.js.map",
-      "sha256": "0fcce1eb1fc634b4f104e603d6c0a71d489d1a63752ff06bcf0094d4d96b736f",
-      "size": 1123770
+      "path": "assets/tg_import.worker.LSNT55MX.js.map",
+      "sha256": "6a1f02e214cfc7169d904278851d919040ccd6dd753c66b6adf853dc44c7660f",
+      "size": 1123688
     },
     {
       "path": "assets/voice-note.css",
@@ -685,13 +685,13 @@
     },
     {
       "path": "downloads.json",
-      "sha256": "e9dda9555f7e542614512031d016636be981571f4b6ac225c730477be15ab75e",
+      "sha256": "5673f133536ad4e6078aff1d0579f55df4ec4aa460e458eabb50d0129118532a",
       "size": 5784
     },
     {
       "path": "en/index.html",
-      "sha256": "5ab39ebdafcb3710b0716687de3ea6e0738dd8b43ee8dd5d1ae4953515cd9d00",
-      "size": 21369
+      "sha256": "ed84dedb93c9e5adda1bc39d47b27a1f4df54012fe0b0e6d4349f63e0e557890",
+      "size": 21396
     },
     {
       "path": "favicon.svg",
@@ -715,8 +715,8 @@
     },
     {
       "path": "index.html",
-      "sha256": "c5c5965ff91c39a8fc188e468662cecf2bac9c519b14443242a4791d4d8d970a",
-      "size": 35312
+      "sha256": "7ef53b4552de361e89e2c1601ca60ea529b66c2497e9a584bb893484ef45d0cc",
+      "size": 35348
     },
     {
       "path": "legal/open-source/greenchat-AGPL-3.0.txt",
@@ -790,8 +790,8 @@
     },
     {
       "path": "sw.js",
-      "sha256": "dcf7c51e40ebfb57ca7f5703bea3e3ac2f1737423a934ac9a662de842d123e30",
-      "size": 14831
+      "sha256": "27f305b2eeb791fa8750e29fb58dc92ea377e1e03643945a823931f7c6f41021",
+      "size": 14858
     },
     {
       "path": "update-notice.css",
@@ -816,5 +816,5 @@
   ],
   "profile": "development",
   "schema": "green-chat-web-build-profile/v2",
-  "payload_sha256": "129e55089959e724227e5f3568b357b243c7a6f99b1e5c016fb434e9e41e4dd7"
+  "payload_sha256": "8328ab35553c7e4283b0060c9246ef0a5f9ca9d79e7155d86de5f0c3fc3af898"
 }

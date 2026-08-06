@@ -101,6 +101,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
     private weak var gcNativeTabBar: UITabBar?
     private weak var gcNativeBridgeController: CAPBridgeViewController?
     private var gcNativeTabBarInstallAttempts = 0
+    private var gcNativeTabBarVisible = false
+    private var gcNativeTabLanguage = ""
     private let gcNativeTabRoutes = ["/", "/calls", "/contacts", "/wallet", "/settings"]
     private static let gcNativeTabHandler = "gcNativeTabBar"
 
@@ -144,6 +146,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
         tabBar.accessibilityIdentifier = "gc-native-liquid-glass-tab-bar"
         gcApplyNativeTabTitles(tabBar, language: Locale.preferredLanguages.first ?? "en")
         tabBar.selectedItem = tabBar.items?.first
+        tabBar.alpha = 0
+        tabBar.transform = CGAffineTransform(translationX: 0, y: 88)
         tabBar.isHidden = true
         tabBar.isUserInteractionEnabled = false
         tabBar.accessibilityElementsHidden = true
@@ -166,19 +170,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
         let bootstrap = """
         (() => {
           let pending = false;
+          let lastSignature = '';
           const publishNow = () => {
             pending = false;
-            const visible = Boolean(document.querySelector('.gc-superapp'));
+            const shell = document.querySelector('.gc-superapp');
+            const isPainted = (node) => {
+              if (!(node instanceof Element) || node.hasAttribute('hidden')) return false;
+              const style = window.getComputedStyle(node);
+              if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse') return false;
+              if (Number.parseFloat(style.opacity || '1') <= 0.01) return false;
+              const rect = node.getBoundingClientRect();
+              return rect.width > 1 && rect.height > 1;
+            };
+            const blockers = document.querySelectorAll(
+              '.gc-overlay, .gc-palette-overlay, .gc-msgmenu-layer, .gc-sheet-layer, .gc-viewer, [aria-modal="true"]'
+            );
+            const blocked = Array.from(blockers).some(isPainted);
+            // Android/APK hides the canonical rail whenever the shell enters gc-superapp-detail.
+            // Native iOS mirrors that exact shell state instead of inventing a second route table.
+            const visible = Boolean(shell && !shell.classList.contains('gc-superapp-detail') && !blocked);
             const root = document.documentElement;
             if (root) {
               if (visible) root.setAttribute('data-gc-native-tabbar', 'ios-native');
               else root.removeAttribute('data-gc-native-tabbar');
             }
-            window.webkit?.messageHandlers?.gcNativeTabBar?.postMessage({
-              hash: window.location.hash || '#/',
-              visible,
-              language: root?.lang || navigator.language || 'en'
-            });
+            const hash = window.location.hash || '#/';
+            const language = root?.lang || navigator.language || 'en';
+            const signature = (visible ? '1' : '0') + '|' + hash + '|' + language;
+            if (signature === lastSignature) return;
+            lastSignature = signature;
+            window.webkit?.messageHandlers?.gcNativeTabBar?.postMessage({ hash, visible, language });
           };
           const publish = () => {
             if (pending) return;
@@ -192,7 +213,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
           window.__gcNativeTabBarObserver = new MutationObserver(publish);
           window.__gcNativeTabBarObserver.observe(document.documentElement, {
             attributes: true,
-            attributeFilter: ['lang'],
+            attributeFilter: ['lang', 'class', 'hidden', 'aria-hidden'],
             childList: true,
             subtree: true
           });
@@ -213,9 +234,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
 
     private func gcApplyNativeTabTitles(_ tabBar: UITabBar, language: String) {
         let russian = language.lowercased().hasPrefix("ru")
+        let languageKey = russian ? "ru" : "en"
         let titles = russian
             ? ["Чаты", "Звонки", "Контакты", "Кошелёк", "Ещё"]
             : ["Chats", "Calls", "Contacts", "Wallet", "More"]
+        if gcNativeTabLanguage == languageKey && tabBar.items?.count == titles.count { return }
+        gcNativeTabLanguage = languageKey
         let symbols = ["message.fill", "phone.fill", "person.2.fill", "creditcard.fill", "ellipsis"]
         let selectedTag = tabBar.selectedItem?.tag ?? 0
         tabBar.items = titles.indices.map { index in
@@ -227,12 +251,54 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
     private func gcSetNativeTabBar(visible: Bool, hash: String, language: String) {
         guard let tabBar = gcNativeTabBar else { return }
         gcApplyNativeTabTitles(tabBar, language: language)
-        tabBar.isHidden = !visible
+        if visible {
+            gcSelectNativeTab(for: hash)
+            gcNativeBridgeController?.view.bringSubviewToFront(tabBar)
+        }
+
+        let changed = gcNativeTabBarVisible != visible
+        gcNativeTabBarVisible = visible
         tabBar.isUserInteractionEnabled = visible
         tabBar.accessibilityElementsHidden = !visible
-        guard visible else { return }
-        gcSelectNativeTab(for: hash)
-        gcNativeBridgeController?.view.bringSubviewToFront(tabBar)
+        guard changed else { return }
+
+        let hiddenTransform = CGAffineTransform(translationX: 0, y: max(tabBar.bounds.height, 72))
+        if UIAccessibility.isReduceMotionEnabled {
+            tabBar.layer.removeAllAnimations()
+            tabBar.transform = visible ? .identity : hiddenTransform
+            tabBar.alpha = visible ? 1 : 0
+            tabBar.isHidden = !visible
+            return
+        }
+
+        if visible {
+            tabBar.isHidden = false
+            UIView.animate(
+                withDuration: 0.28,
+                delay: 0,
+                usingSpringWithDamping: 0.90,
+                initialSpringVelocity: 0.12,
+                options: [.allowUserInteraction, .beginFromCurrentState, .curveEaseOut],
+                animations: {
+                    tabBar.transform = .identity
+                    tabBar.alpha = 1
+                }
+            )
+        } else {
+            UIView.animate(
+                withDuration: 0.20,
+                delay: 0,
+                options: [.allowUserInteraction, .beginFromCurrentState, .curveEaseIn],
+                animations: {
+                    tabBar.transform = hiddenTransform
+                    tabBar.alpha = 0
+                },
+                completion: { [weak self] _ in
+                    guard let self, !self.gcNativeTabBarVisible else { return }
+                    self.gcNativeTabBar?.isHidden = true
+                }
+            )
+        }
     }
 
     private func gcSelectNativeTab(for hash: String) {

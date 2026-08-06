@@ -8,11 +8,11 @@
 //   - push → showNotification; click → focus/open the target chat deep link.
 "use strict";
 
-const VERSION = "43QCO75S";
+const VERSION = "7BVARWSX";
 const SHELL_CACHE = "gc-shell-" + VERSION;
 // Deleted on activation for upgrades from builds that cached private /v1/files responses by URL.
 const LEGACY_MEDIA_CACHE = "gc-media-v1";
-const PRECACHE = ["/","/index.html","/assets/app.43QCO75S.js","/assets/app.U76ZT57F.css","/assets/chunk.35IEINZH.js","/assets/chunk.3R52YSER.js","/assets/chunk.3UPOALN5.js","/assets/chunk.4OPZWSUS.js","/assets/chunk.4SGRZRDJ.js","/assets/chunk.553VKZ52.js","/assets/chunk.BLCH77FZ.js","/assets/chunk.C34KMXTG.js","/assets/chunk.CEFR7CUJ.js","/assets/chunk.CTXEZ7RN.js","/assets/chunk.FFUW5R4W.js","/assets/chunk.FKMGW3JX.js","/assets/chunk.GX6UQENF.js","/assets/chunk.IXH3XKUI.js","/assets/chunk.KKKMLQPZ.js","/assets/chunk.KQS4EBIX.js","/assets/chunk.LTA4DV3D.js","/assets/chunk.OTPFWLJS.js","/assets/chunk.R6MNQPFC.js","/assets/chunk.RPWKWGH5.js","/assets/chunk.S2REVTJ4.js","/assets/chunk.U43VPDPW.js","/assets/chunk.UKNGYS6X.js","/assets/chunk.W6ZJBB3H.js","/assets/chunk.WAYP7RHX.js","/manifest.webmanifest","/icon.svg","/icon-maskable.svg","/apple-touch-icon.svg","/favicon.svg","/site-loader.js?v=native-liquidglass-only-1000052","/downloads.json?v=native-liquidglass-only-1000052","/site.css?v=native-liquidglass-only-1000052"];
+const PRECACHE = ["/","/index.html","/assets/app.6TQ5BVHA.css","/assets/app.7BVARWSX.js","/assets/chunk.35IEINZH.js","/assets/chunk.3UPOALN5.js","/assets/chunk.4OPZWSUS.js","/assets/chunk.4SGRZRDJ.js","/assets/chunk.553VKZ52.js","/assets/chunk.BLCH77FZ.js","/assets/chunk.C34KMXTG.js","/assets/chunk.CEFR7CUJ.js","/assets/chunk.CTXEZ7RN.js","/assets/chunk.FFUW5R4W.js","/assets/chunk.FKMGW3JX.js","/assets/chunk.GX6UQENF.js","/assets/chunk.IXH3XKUI.js","/assets/chunk.KKKMLQPZ.js","/assets/chunk.KQS4EBIX.js","/assets/chunk.LTA4DV3D.js","/assets/chunk.OTPFWLJS.js","/assets/chunk.PLODNJVY.js","/assets/chunk.R6MNQPFC.js","/assets/chunk.RPWKWGH5.js","/assets/chunk.S2REVTJ4.js","/assets/chunk.U43VPDPW.js","/assets/chunk.UKNGYS6X.js","/assets/chunk.W6ZJBB3H.js","/assets/chunk.WAYP7RHX.js","/manifest.webmanifest","/icon.svg","/icon-maskable.svg","/apple-touch-icon.svg","/favicon.svg","/site-loader.js?v=fed5698b3923113c4006641083dccb5c75ad9dcb","/downloads.json?v=fed5698b3923113c4006641083dccb5c75ad9dcb","/site.css?v=fed5698b3923113c4006641083dccb5c75ad9dcb"];
 
 // ---- lifecycle ----------------------------------------------------------------------------------
 

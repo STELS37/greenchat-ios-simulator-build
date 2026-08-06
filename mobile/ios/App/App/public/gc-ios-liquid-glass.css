@@ -22,6 +22,12 @@
   .gc-chats-header,
   .gc-settings-header,
   .gc-chat-header,
+  .gc-feed-header,
+  .gc-calls-header,
+  .gc-finance-header,
+  .gc-import-header,
+  .gc-server-header,
+  .gc-feed-pinned,
   .gc-composer,
   .gc-app-rail,
   .gc-shell-nav,
@@ -33,6 +39,7 @@
   box-shadow: var(--gc-ios-glass-shadow);
   -webkit-backdrop-filter: saturate(175%) blur(24px);
   backdrop-filter: saturate(175%) blur(24px);
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 :root[data-gc-native-shell="ios"] :is(
