@@ -139,6 +139,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
         tabBar.tintColor = UIColor.systemGreen
         tabBar.unselectedItemTintColor = UIColor.secondaryLabel
         tabBar.itemPositioning = .fill
+        // The owner wants the destinations to float directly above the screen, without the large
+        // grey system capsule around the whole row. Keep UIKit's item states, but make the bar's
+        // own material, background and separator fully transparent through the public appearance API.
+        let transparentAppearance = UITabBarAppearance()
+        transparentAppearance.configureWithTransparentBackground()
+        transparentAppearance.backgroundColor = UIColor.clear
+        transparentAppearance.backgroundEffect = nil
+        transparentAppearance.shadowColor = UIColor.clear
+        tabBar.standardAppearance = transparentAppearance
+        tabBar.scrollEdgeAppearance = transparentAppearance
+        tabBar.isTranslucent = true
+        tabBar.backgroundColor = UIColor.clear
+        tabBar.backgroundImage = UIImage()
+        tabBar.shadowImage = UIImage()
+        tabBar.layer.backgroundColor = UIColor.clear.cgColor
         tabBar.accessibilityIdentifier = "gc-liquid-glass-tab-bar"
         tabBar.items = titles.indices.map { index in
             UITabBarItem(title: titles[index], image: UIImage(systemName: symbols[index]), tag: index)

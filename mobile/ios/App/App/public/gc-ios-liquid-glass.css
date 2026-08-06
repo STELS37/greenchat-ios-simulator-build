@@ -163,10 +163,20 @@
     backdrop-filter: blur(16px) saturate(170%);
   }
 
-  /* UIKit owns the visible iOS 26 tab bar. The web layout still reserves exactly its system height,
-     but the duplicate HTML bar is removed so there can never be two rows of tabs. */
+  /* UIKit owns the visible iOS 26 tab bar as an overlay. Reserving its height in the web layout
+     created a second pale strip behind the floating glass capsule. Let the active screen continue
+     all the way to the device edge; UIKit alone paints the navigation material above it. */
   :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] {
-    --gc-mobile-nav: calc(50px + var(--gc-safe-bottom, 0px));
+    --gc-ios-native-tabbar-overlay: calc(50px + var(--gc-safe-bottom, 0px));
+    --gc-mobile-nav: 0px;
+  }
+
+  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] .gc-superapp {
+    padding-bottom: 0;
+  }
+
+  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] .gc-superapp-stage {
+    height: calc(100dvh - var(--gc-offer-h, 0px));
   }
 
   :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] .gc-app-rail {
