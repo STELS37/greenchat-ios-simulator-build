@@ -1,0 +1,13 @@
+name: macos-free-probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: macos-15
+    steps:
+      - run: |
+          sw_vers
+          xcodebuild -version
+          ls -1 /Applications | grep '^Xcode' | tail -20
