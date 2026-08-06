@@ -8,11 +8,11 @@
 //   - push → showNotification; click → focus/open the target chat deep link.
 "use strict";
 
-const VERSION = "HOMBXL4V";
+const VERSION = "Y7S64FJ4";
 const SHELL_CACHE = "gc-shell-" + VERSION;
 // Deleted on activation for upgrades from builds that cached private /v1/files responses by URL.
 const LEGACY_MEDIA_CACHE = "gc-media-v1";
-const PRECACHE = ["/","/index.html","/assets/app.HOMBXL4V.js","/assets/app.RDIU5UWU.css","/assets/chunk.3R52YSER.js","/assets/chunk.3UPOALN5.js","/assets/chunk.4OPZWSUS.js","/assets/chunk.4SGRZRDJ.js","/assets/chunk.553VKZ52.js","/assets/chunk.BLCH77FZ.js","/assets/chunk.BTZI4SSB.js","/assets/chunk.C34KMXTG.js","/assets/chunk.CEFR7CUJ.js","/assets/chunk.FFUW5R4W.js","/assets/chunk.FKMGW3JX.js","/assets/chunk.GX6UQENF.js","/assets/chunk.HDQ6PTY5.js","/assets/chunk.ITD6Q2B4.js","/assets/chunk.IXH3XKUI.js","/assets/chunk.KKKMLQPZ.js","/assets/chunk.KQS4EBIX.js","/assets/chunk.LTA4DV3D.js","/assets/chunk.OCXFFSUD.js","/assets/chunk.OTPFWLJS.js","/assets/chunk.R6MNQPFC.js","/assets/chunk.RPWKWGH5.js","/assets/chunk.UKNGYS6X.js","/assets/chunk.W6ZJBB3H.js","/assets/chunk.WAYP7RHX.js","/manifest.webmanifest","/icon.svg","/icon-maskable.svg","/apple-touch-icon.svg","/favicon.svg","/site-loader.js?v=ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c","/downloads.json?v=ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c","/site.css?v=ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c"];
+const PRECACHE = ["/","/index.html","/assets/app.RDIU5UWU.css","/assets/app.Y7S64FJ4.js","/assets/chunk.3R52YSER.js","/assets/chunk.3UPOALN5.js","/assets/chunk.4OPZWSUS.js","/assets/chunk.4SGRZRDJ.js","/assets/chunk.553VKZ52.js","/assets/chunk.BLCH77FZ.js","/assets/chunk.BTZI4SSB.js","/assets/chunk.C34KMXTG.js","/assets/chunk.CEFR7CUJ.js","/assets/chunk.FFUW5R4W.js","/assets/chunk.FKMGW3JX.js","/assets/chunk.GX6UQENF.js","/assets/chunk.HDQ6PTY5.js","/assets/chunk.ITD6Q2B4.js","/assets/chunk.IXH3XKUI.js","/assets/chunk.KKKMLQPZ.js","/assets/chunk.KQS4EBIX.js","/assets/chunk.LTA4DV3D.js","/assets/chunk.OCXFFSUD.js","/assets/chunk.OTPFWLJS.js","/assets/chunk.R6MNQPFC.js","/assets/chunk.RPWKWGH5.js","/assets/chunk.UKNGYS6X.js","/assets/chunk.W6ZJBB3H.js","/assets/chunk.WAYP7RHX.js","/manifest.webmanifest","/icon.svg","/icon-maskable.svg","/apple-touch-icon.svg","/favicon.svg","/site-loader.js?v=55e39e12fa8814c99dca10cde6e2b80cdb13ec49","/downloads.json?v=55e39e12fa8814c99dca10cde6e2b80cdb13ec49","/site.css?v=55e39e12fa8814c99dca10cde6e2b80cdb13ec49"];
 
 // ---- lifecycle ----------------------------------------------------------------------------------
 

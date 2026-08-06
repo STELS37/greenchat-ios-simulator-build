@@ -1,6 +1,6 @@
 {
   "algorithm": "sha256",
-  "build_id": "ca3e189d1e1ea13e2dc44bf8fd17544f53d4002c",
+  "build_id": "55e39e12fa8814c99dca10cde6e2b80cdb13ec49",
   "bundled_npm_packages": [
     "libsodium-sumo",
     "libsodium-wrappers-sumo",
@@ -19,16 +19,6 @@
       "size": 639
     },
     {
-      "path": "assets/app.HOMBXL4V.js",
-      "sha256": "8dc531a0ceb3aeaa5485280685c8fa6089660c5bfcdeecd91333becc07c7e71a",
-      "size": 656920
-    },
-    {
-      "path": "assets/app.HOMBXL4V.js.map",
-      "sha256": "bce25ea42b89a79068c6d14341231a3b5870f885e63725b193b722b6d69981d7",
-      "size": 2939339
-    },
-    {
       "path": "assets/app.RDIU5UWU.css",
       "sha256": "5ce57b790296ee0ae0440ddf5d784346b4c82bb75adc80f1696d6ea118b0d4aa",
       "size": 381000
@@ -37,6 +27,16 @@
       "path": "assets/app.RDIU5UWU.css.map",
       "sha256": "1e730c79e2bc7ae31805e1b749cf8a840022e083d8ff159da3c0b8f2f49191ca",
       "size": 1081491
+    },
+    {
+      "path": "assets/app.Y7S64FJ4.js",
+      "sha256": "bc8332675a78b3e96b84aabfcbe864267d226d623f148f26bea2dbd8310f1e9d",
+      "size": 656920
+    },
+    {
+      "path": "assets/app.Y7S64FJ4.js.map",
+      "sha256": "bce25ea42b89a79068c6d14341231a3b5870f885e63725b193b722b6d69981d7",
+      "size": 2939339
     },
     {
       "path": "assets/call-incoming.mp3",
@@ -665,12 +665,12 @@
     },
     {
       "path": "downloads.json",
-      "sha256": "8d737746964dbed4f459f27c0fa99cb116dbba97342b5f1278b8401bd3ec85cd",
+      "sha256": "397f9a488ec442cc00faa5843b6d8f3ed433c3930ec930ca86e1213c71436016",
       "size": 5784
     },
     {
       "path": "en/index.html",
-      "sha256": "780bcc5de0ef875e07f2021af1e2eff73eae786d589f2eb70d18b057270da547",
+      "sha256": "011e3884635ee7e44c015c987b863596247b494fe263ad61f83a5a92be872376",
       "size": 21396
     },
     {
@@ -695,7 +695,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "72d200b3ba32691250a8cc4795476248231ededf6bf5ad38b58cd39f2a4b862b",
+      "sha256": "d96f90be9e93538bd0a6e990b28a402081ce60c7fd3b9bb95d211bc7c2a49c9b",
       "size": 35348
     },
     {
@@ -770,7 +770,7 @@
     },
     {
       "path": "sw.js",
-      "sha256": "db4272aab68679fad53af675f933279d1ed6d2b14233419e645d56af0d25dfde",
+      "sha256": "80d8476fd79a77b287fcf18dd3b9fe4b212514f70efde32e38ba56529f71c3df",
       "size": 14699
     },
     {
@@ -796,5 +796,5 @@
   ],
   "profile": "development",
   "schema": "green-chat-web-build-profile/v2",
-  "payload_sha256": "985d2254db72567a4d239e961814ced2842297dd8a8691313031d90907836190"
+  "payload_sha256": "5700453a5380b853c4e74b81615d607e577eb6279606aee93623f541ba75cf0d"
 }

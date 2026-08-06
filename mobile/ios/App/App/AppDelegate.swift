@@ -144,6 +144,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
             UITabBarItem(title: titles[index], image: UIImage(systemName: symbols[index]), tag: index)
         }
         tabBar.selectedItem = tabBar.items?.first
+        // The native bar is authenticated shell chrome. Start hidden so the login, public-link,
+        // lock and legal-gate screens never flash account navigation before the WebView reports a shell.
+        tabBar.isHidden = true
+        tabBar.isUserInteractionEnabled = false
+        tabBar.accessibilityElementsHidden = true
 
         bridgeController.view.addSubview(tabBar)
         let safeBottom = max(bridgeController.view.safeAreaInsets.bottom, window.safeAreaInsets.bottom)
@@ -162,11 +167,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
         controller.add(self, name: Self.gcLiquidGlassHandler)
         let bootstrap = """
         (() => {
-          const publish = () => window.webkit?.messageHandlers?.gcNativeTabBar?.postMessage(window.location.hash || '#/');
-          if (document.documentElement) document.documentElement.setAttribute('data-gc-native-tabbar', 'ios26');
+          let pending = false;
+          const publishNow = () => {
+            pending = false;
+            const visible = Boolean(document.querySelector('.gc-superapp'));
+            const root = document.documentElement;
+            if (root) {
+              if (visible) root.setAttribute('data-gc-native-tabbar', 'ios26');
+              else root.removeAttribute('data-gc-native-tabbar');
+            }
+            window.webkit?.messageHandlers?.gcNativeTabBar?.postMessage({
+              hash: window.location.hash || '#/',
+              visible
+            });
+          };
+          const publish = () => {
+            if (pending) return;
+            pending = true;
+            window.requestAnimationFrame(publishNow);
+          };
           if (window.__gcNativeTabBarListener) window.removeEventListener('hashchange', window.__gcNativeTabBarListener);
           window.__gcNativeTabBarListener = publish;
           window.addEventListener('hashchange', publish);
+          if (window.__gcNativeTabBarObserver) window.__gcNativeTabBarObserver.disconnect();
+          window.__gcNativeTabBarObserver = new MutationObserver(publish);
+          window.__gcNativeTabBarObserver.observe(document.documentElement, { childList: true, subtree: true });
           publish();
         })();
         """
@@ -180,6 +205,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
             if let bridge = gcFindBridgeController(child) { return bridge }
         }
         return nil
+    }
+
+    private func gcSetLiquidGlassTabBar(visible: Bool, hash: String) {
+        guard let tabBar = gcLiquidGlassTabBar else { return }
+        tabBar.isHidden = !visible
+        tabBar.isUserInteractionEnabled = visible
+        tabBar.accessibilityElementsHidden = !visible
+        guard visible else { return }
+        gcSelectLiquidGlassTab(for: hash)
+        gcLiquidGlassBridgeController?.view.bringSubviewToFront(tabBar)
     }
 
     private func gcSelectLiquidGlassTab(for hash: String) {
@@ -208,8 +243,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScrip
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.name == Self.gcLiquidGlassHandler, let hash = message.body as? String else { return }
-        gcSelectLiquidGlassTab(for: hash)
+        guard message.name == Self.gcLiquidGlassHandler else { return }
+        if let payload = message.body as? [String: Any] {
+            let hash = payload["hash"] as? String ?? "#/"
+            let visible = payload["visible"] as? Bool ?? false
+            gcSetLiquidGlassTabBar(visible: visible, hash: hash)
+            return
+        }
+        // Backward-compatible with a stale document that executed the previous one-string bridge.
+        if let hash = message.body as? String {
+            gcSetLiquidGlassTabBar(visible: true, hash: hash)
+        }
     }
 
 }
