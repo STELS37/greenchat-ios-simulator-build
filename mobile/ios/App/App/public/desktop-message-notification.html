@@ -16,11 +16,13 @@
     </span>
     <span class="gc-notification__content">
       <span class="gc-notification__eyebrow">
-        <strong>Green Chat</strong>
+        <span class="gc-notification__status-dot" aria-hidden="true"></span>
+        <span class="gc-notification__brand">Green Chat</span>
         <span id="count" class="gc-notification__count" hidden></span>
       </span>
-      <span id="body" class="gc-notification__body">Новое сообщение</span>
-      <span class="gc-notification__hint">Нажмите, чтобы открыть чат</span>
+      <strong id="sender" class="gc-notification__sender">Новое сообщение</strong>
+      <span id="body" class="gc-notification__body" hidden>Новое сообщение</span>
+      <span id="hint" class="gc-notification__hint">Нажмите, чтобы открыть чат</span>
     </span>
     <button id="close" class="gc-notification__close" type="button" aria-label="Закрыть уведомление">×</button>
     <span class="gc-notification__progress" aria-hidden="true"></span>

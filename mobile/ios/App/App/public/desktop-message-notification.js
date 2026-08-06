@@ -6,7 +6,9 @@ const tauri = window.__TAURI__;
 const invoke = tauri?.core?.invoke;
 const listen = tauri?.event?.listen;
 const root = document.getElementById("notification");
+const sender = document.getElementById("sender");
 const body = document.getElementById("body");
+const hint = document.getElementById("hint");
 const count = document.getElementById("count");
 const close = document.getElementById("close");
 
@@ -22,6 +24,13 @@ function clearTimers() {
   hideTimer = 0;
 }
 
+function compactText(value, limit) {
+  const compact = typeof value === "string" ? value.trim().replace(/\s+/g, " ") : "";
+  if (!compact) return null;
+  const chars = Array.from(compact);
+  return chars.length > limit ? `${chars.slice(0, limit).join("")}…` : compact;
+}
+
 function validPayload(value) {
   if (!value || typeof value !== "object") return null;
   const id = Number(value.id);
@@ -30,7 +39,9 @@ function validPayload(value) {
   return {
     id,
     count: Number.isFinite(total) ? Math.max(1, Math.trunc(total)) : 1,
-    body: typeof value.body === "string" && value.body.trim() ? value.body.trim() : "Новое сообщение",
+    sender: compactText(value.sender, 72),
+    body: compactText(value.body, 180) || "Новое сообщение",
+    hasPreview: value.hasPreview === true,
   };
 }
 
@@ -57,10 +68,16 @@ function show(raw) {
   clearTimers();
   leaving = false;
   currentId = payload.id;
+  sender.textContent = payload.sender || "Новое сообщение";
   body.textContent = payload.body;
+  body.hidden = !payload.sender && !payload.hasPreview;
+  hint.hidden = !body.hidden;
   count.hidden = payload.count <= 1;
   count.textContent = payload.count > 99 ? "99+" : String(payload.count);
-  root.setAttribute("aria-label", `${payload.body}. Открыть Green Chat`);
+  const spoken = body.hidden
+    ? "Новое сообщение. Открыть Green Chat"
+    : `${sender.textContent}. ${payload.body}. Открыть Green Chat`;
+  root.setAttribute("aria-label", spoken);
 
   root.classList.remove("is-visible", "is-leaving");
   void root.offsetWidth;
