@@ -5,7 +5,7 @@ permissions:
   contents: read
 jobs:
   build:
-    runs-on: macos-26
+    runs-on: macos-15-intel
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             ONLY_ACTIVE_ARCH=NO \
-            ARCHS=arm64 \
+            ARCHS="arm64 x86_64" \
             PRODUCT_BUNDLE_IDENTIFIER=app.greenchat \
             build | tee "$RUNNER_TEMP/xcodebuild-simulator.log"
           app="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator" -maxdepth 1 -type d -name '*.app' -print -quit)"
