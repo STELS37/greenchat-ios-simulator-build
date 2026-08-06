@@ -1,0 +1,39 @@
+{
+	"appId": "app.greenchat",
+	"appName": "Green Chat",
+	"webDir": "www",
+	"android": {
+		"allowMixedContent": false
+	},
+	"ios": {
+		"scheme": "App"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 600,
+			"backgroundColor": "#f2f4f6",
+			"showSpinner": false
+		},
+		"StatusBar": {
+			"style": "DEFAULT"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		}
+	},
+	"packageClassList": [
+		"SecureStorage",
+		"AppPlugin",
+		"CAPBrowserPlugin",
+		"FilesystemPlugin",
+		"LocalNotificationsPlugin",
+		"PushNotificationsPlugin",
+		"SharePlugin",
+		"SplashScreenPlugin",
+		"StatusBarPlugin"
+	]
+}
