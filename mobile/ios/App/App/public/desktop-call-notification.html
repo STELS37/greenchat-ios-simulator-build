@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Входящий звонок — Green Chat</title>
+  <link rel="stylesheet" href="./desktop-call-notification.css">
+</head>
+<body>
+  <main id="call-notification" class="gc-call-card" role="dialog" aria-modal="false" aria-live="assertive" aria-label="Входящий звонок Green Chat">
+    <div class="gc-call-card__aurora" aria-hidden="true"></div>
+    <div class="gc-call-card__top">
+      <div class="gc-call-avatar-wrap" aria-hidden="true">
+        <span class="gc-call-ring gc-call-ring--one"></span>
+        <span class="gc-call-ring gc-call-ring--two"></span>
+        <span id="avatar" class="gc-call-avatar">G</span>
+        <span class="gc-call-avatar__leaf">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.7 4.3C13.1 4.6 8.1 7.1 6.2 11.2c-1.2 2.6-.7 5.1.9 6.9 1.7-4.2 4.4-7.2 8.2-9.2-3.1 2.6-5.2 5.7-6.4 9.5 2.1 1 4.6.7 6.7-.9 3.4-2.6 4.3-7.2 4.1-13.2Z"/></svg>
+        </span>
+      </div>
+      <div class="gc-call-copy">
+        <div class="gc-call-kicker"><span class="gc-call-dot"></span>Входящий звонок</div>
+        <strong id="caller-name" class="gc-call-name">Пользователь Green Chat</strong>
+        <span id="call-kind" class="gc-call-kind">Аудиозвонок в Green Chat</span>
+      </div>
+      <div id="video-badge" class="gc-call-video-badge" hidden aria-label="Видеозвонок">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.7l3.2-2a1.2 1.2 0 0 1 1.8 1v9.6a1.2 1.2 0 0 1-1.8 1L16 15.8v1.7a2.5 2.5 0 0 1-2.5 2h-7A2.5 2.5 0 0 1 4 17V6.5Z"/></svg>
+      </div>
+    </div>
+
+    <div class="gc-call-actions" role="group" aria-label="Действия со звонком">
+      <button id="decline" class="gc-call-action gc-call-action--decline" type="button">
+        <span class="gc-call-action__icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.2c3.6-1.8 7.2-1.8 10.8 0l1.3-1.3a1.5 1.5 0 0 1 2.1 0l1.1 1.1a1.5 1.5 0 0 1 0 2.1l-2.3 2.3a2 2 0 0 1-2.2.4l-2.2-1.1a7.7 7.7 0 0 0-6.4 0l-2.2 1.1a2 2 0 0 1-2.2-.4l-2.3-2.3a1.5 1.5 0 0 1 0-2.1l1.1-1.1a1.5 1.5 0 0 1 2.1 0l1.3 1.3Z"/></svg>
+        </span>
+        <span>Отклонить</span>
+      </button>
+      <button id="answer" class="gc-call-action gc-call-action--answer" type="button">
+        <span class="gc-call-action__icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3.2 9.7 3a1.8 1.8 0 0 1 1.8 1.2l1.1 3a1.8 1.8 0 0 1-.5 1.9l-1.4 1.3a13 13 0 0 0 3 3l1.3-1.4a1.8 1.8 0 0 1 1.9-.5l3 1.1a1.8 1.8 0 0 1 1.2 1.8l-.2 2.5a3.8 3.8 0 0 1-4 3.5C9.8 19.8 4.2 14.2 3.7 7.1a3.8 3.8 0 0 1 3.5-4Z"/></svg>
+        </span>
+        <span>Ответить</span>
+      </button>
+    </div>
+  </main>
+  <script type="module" src="./desktop-call-notification.js"></script>
+</body>
+</html>

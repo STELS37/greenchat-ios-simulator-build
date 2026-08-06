@@ -1,6 +1,6 @@
 {
   "algorithm": "sha256",
-  "build_id": "dev-local",
+  "build_id": "native-liquidglass-only-1000052",
   "bundled_npm_packages": [
     "libsodium-sumo",
     "libsodium-wrappers-sumo",
@@ -19,6 +19,16 @@
       "size": 639
     },
     {
+      "path": "assets/app.43QCO75S.js",
+      "sha256": "d330a753dc808fa87632a88894e655b1e5983469158540d5761124910ff45836",
+      "size": 676366
+    },
+    {
+      "path": "assets/app.43QCO75S.js.map",
+      "sha256": "667fd77bb41c0635db8aa2eb4d9ffdca084331318a851cb191ecc9dde47dc68c",
+      "size": 3026910
+    },
+    {
       "path": "assets/app.U76ZT57F.css",
       "sha256": "b5d8b48a14a12537bf052ac2689df9966b0ab94f7088f1b259cde38ab771e004",
       "size": 386801
@@ -27,16 +37,6 @@
       "path": "assets/app.U76ZT57F.css.map",
       "sha256": "5f0355f0a4038c8019b6043aeccc132c024ed54f485f732569ce4ca5a6a2c920",
       "size": 1094612
-    },
-    {
-      "path": "assets/app.XE5YLAIN.js",
-      "sha256": "5a22c5f87624284b0e353c35eee06b57e6c055b0a2aa491f9769a953756b40bf",
-      "size": 673337
-    },
-    {
-      "path": "assets/app.XE5YLAIN.js.map",
-      "sha256": "42d67131cc297da1dfece06a09ab4c587301f2f51dabd684e6a987f1533fbb52",
-      "size": 3012896
     },
     {
       "path": "assets/call-incoming.mp3",
@@ -654,6 +654,21 @@
       "size": 11067
     },
     {
+      "path": "desktop-call-notification.css",
+      "sha256": "1dbaa72544ce13be705b6f5f49ff27d047fd86cc36b554b5f236f57161608b9a",
+      "size": 7520
+    },
+    {
+      "path": "desktop-call-notification.html",
+      "sha256": "b801a8f3238b8c56ea24ea0823d95ddc68a0b7c3be0512e3bb5027e369f0e01b",
+      "size": 3037
+    },
+    {
+      "path": "desktop-call-notification.js",
+      "sha256": "b1fac08129268d551c7c16b3f31235a32f258d7069a042bd15fc8e0354cfff2b",
+      "size": 3483
+    },
+    {
       "path": "desktop-message-notification.css",
       "sha256": "9817162860f29972d4e188c1aec5de464654e677f7998946a24a1b87efc5a5b9",
       "size": 6467
@@ -670,13 +685,13 @@
     },
     {
       "path": "downloads.json",
-      "sha256": "da62ad1e23b903a9c471c4ddcf6670a3223e62a54944d9e7dbfb29e4e18c6856",
+      "sha256": "e9dda9555f7e542614512031d016636be981571f4b6ac225c730477be15ab75e",
       "size": 5784
     },
     {
       "path": "en/index.html",
-      "sha256": "e708d643aba544bef83ffc996c1d8fb1b7e0b047c523bc57dbea762143b12a90",
-      "size": 21303
+      "sha256": "5ab39ebdafcb3710b0716687de3ea6e0738dd8b43ee8dd5d1ae4953515cd9d00",
+      "size": 21369
     },
     {
       "path": "favicon.svg",
@@ -700,8 +715,8 @@
     },
     {
       "path": "index.html",
-      "sha256": "a7e2853cfe715a0786b646143e3d9de09ff0863d693641037f1e97ecc02c82bc",
-      "size": 35224
+      "sha256": "c5c5965ff91c39a8fc188e468662cecf2bac9c519b14443242a4791d4d8d970a",
+      "size": 35312
     },
     {
       "path": "legal/open-source/greenchat-AGPL-3.0.txt",
@@ -775,8 +790,8 @@
     },
     {
       "path": "sw.js",
-      "sha256": "b30a157988ef6e3b9992ee38db1f9ad3d5328f2b444118b9f2c366e522f732bd",
-      "size": 14606
+      "sha256": "dcf7c51e40ebfb57ca7f5703bea3e3ac2f1737423a934ac9a662de842d123e30",
+      "size": 14831
     },
     {
       "path": "update-notice.css",
@@ -801,5 +816,5 @@
   ],
   "profile": "development",
   "schema": "green-chat-web-build-profile/v2",
-  "payload_sha256": "c8fabf3e844ff8bf3ec102dc02b3690ab93e0989859d0ad3e4723ae03f5e224e"
+  "payload_sha256": "129e55089959e724227e5f3568b357b243c7a6f99b1e5c016fb434e9e41e4dd7"
 }

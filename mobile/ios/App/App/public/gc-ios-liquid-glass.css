@@ -72,121 +72,39 @@
   padding-bottom: max(var(--gc-native-safe-bottom, 0px), env(safe-area-inset-bottom));
 }
 
-/* iPhone uses the shared HTML navigation as the only bottom bar. It is one floating glass
-   capsule over the continuing application screen: there is no UIKit UITabBar and no full-width
-   system strip behind it. Android and web are unaffected because the native shell stamps ios. */
-@media (max-width: 760px) {
-  :root[data-gc-native-shell="ios"] {
-    --gc-ios-tabbar-overlay: calc(78px + var(--gc-safe-bottom, 0px));
-    --gc-mobile-nav: 0px;
-  }
+/* iOS navigation is native-only. UIKit owns the sole UITabBar; Xcode 26/iOS 26 applies the
+   standard Liquid Glass material. The shared HTML rail is never painted in the iOS shell, so it
+   cannot flash beneath the system bar or leave a white/grey reserved rectangle. */
+:root[data-gc-native-shell="ios"] {
+  --gc-ios-native-tabbar-overlay: calc(50px + max(var(--gc-safe-bottom, 0px), env(safe-area-inset-bottom)));
+  --gc-mobile-nav: 0px;
+}
 
-  :root[data-gc-native-shell="ios"] .gc-superapp {
-    padding-bottom: 0;
-  }
+:root[data-gc-native-shell="ios"] .gc-superapp {
+  padding-bottom: 0;
+}
 
-  :root[data-gc-native-shell="ios"] .gc-superapp-stage {
-    height: calc(100dvh - var(--gc-offer-h, 0px));
-  }
+:root[data-gc-native-shell="ios"] .gc-superapp-stage {
+  height: calc(100dvh - var(--gc-offer-h, 0px));
+}
 
-  :root[data-gc-native-shell="ios"] .gc-app-rail {
-    position: fixed;
-    z-index: 120;
-    inset: auto max(10px, var(--gc-safe-right, 0px)) max(8px, var(--gc-safe-bottom, 0px))
-      max(10px, var(--gc-safe-left, 0px));
-    width: auto;
-    height: 64px;
-    padding: 6px 8px;
-    overflow: hidden;
-    isolation: isolate;
-    border: 1px solid color-mix(in srgb, #ffffff 68%, var(--gc-ios-glass-border));
-    border-radius: 26px;
-    background:
-      linear-gradient(180deg, rgb(255 255 255 / 0.56), rgb(255 255 255 / 0.20)),
-      color-mix(in srgb, var(--gc-bg-elevated, #ffffff) 72%, transparent);
-    box-shadow:
-      0 14px 36px rgb(15 23 42 / 0.16),
-      0 2px 8px rgb(15 23 42 / 0.07),
-      inset 0 1px 0 rgb(255 255 255 / 0.86),
-      inset 0 -1px 0 rgb(255 255 255 / 0.24);
-    -webkit-backdrop-filter: blur(30px) saturate(190%) contrast(1.02);
-    backdrop-filter: blur(30px) saturate(190%) contrast(1.02);
-  }
+:root[data-gc-native-shell="ios"] :is(.gc-app-rail, .gc-shell-nav, .gc-bottom-nav) {
+  display: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
 
-  :root[data-gc-native-shell="ios"] .gc-app-rail::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    background:
-      radial-gradient(84% 60% at 16% 0%, rgb(255 255 255 / 0.58), transparent 70%),
-      linear-gradient(112deg, transparent 16%, rgb(255 255 255 / 0.18) 48%, transparent 76%);
-    mix-blend-mode: screen;
-  }
+/* The native bridge stamps this only after the authenticated shell exists. It is intentionally a
+   layout marker, not a second visual treatment: the page continues behind the floating UIKit bar. */
+:root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios-native"] {
+  --gc-mobile-nav: 0px;
+}
 
-  :root[data-gc-native-shell="ios"] .gc-shell-nav {
-    position: relative;
-    z-index: 1;
-    height: 100%;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  :root[data-gc-native-shell="ios"] .gc-shell-item {
-    min-width: 0;
-    border: 1px solid transparent;
-    border-radius: 19px;
-    background: transparent;
-    transition:
-      transform 130ms ease,
-      color 160ms ease,
-      background-color 180ms ease,
-      border-color 180ms ease;
-  }
-
-  :root[data-gc-native-shell="ios"] .gc-shell-item.is-active {
-    color: color-mix(in srgb, var(--gc-accent-strong, #087443) 90%, #06150e);
-    border-color: color-mix(in srgb, var(--gc-accent, #16a765) 32%, rgb(255 255 255 / 0.56));
-    background:
-      linear-gradient(155deg, rgb(255 255 255 / 0.48), transparent 62%),
-      color-mix(in srgb, var(--gc-accent, #16a765) 19%, transparent);
-    box-shadow:
-      0 6px 16px color-mix(in srgb, var(--gc-accent, #16a765) 18%, transparent),
-      inset 0 1px 0 rgb(255 255 255 / 0.66);
-  }
-
-  :root[data-gc-native-shell="ios"] .gc-shell-item.is-active .gc-shell-item-icon {
-    color: currentColor;
-    border: 1px solid rgb(255 255 255 / 0.48);
-    background:
-      linear-gradient(145deg, rgb(255 255 255 / 0.50), rgb(255 255 255 / 0.10)),
-      color-mix(in srgb, var(--gc-accent, #16a765) 22%, transparent);
-    box-shadow:
-      0 4px 12px color-mix(in srgb, var(--gc-accent, #16a765) 16%, transparent),
-      inset 0 1px 0 rgb(255 255 255 / 0.68);
-    -webkit-backdrop-filter: blur(14px) saturate(165%);
-    backdrop-filter: blur(14px) saturate(165%);
-  }
-
-  /* Defensive quarantine for an obsolete pre-migration shell. New builds never stamp this
-     attribute because the native UITabBar is removed. If a stale binary does, its HTML duplicate
-     remains hidden while that old process finishes; the next generated shell removes the code. */
-  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] {
-    --gc-mobile-nav: 0px;
-  }
-
-  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] .gc-superapp-stage {
-    height: calc(100dvh - var(--gc-offer-h, 0px));
-  }
-
-  :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios26"] .gc-app-rail {
-    display: none !important;
-  }
+:root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios-native"] .gc-superapp-stage {
+  height: calc(100dvh - var(--gc-offer-h, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {

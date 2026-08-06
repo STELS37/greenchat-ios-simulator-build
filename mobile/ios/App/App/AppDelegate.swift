@@ -1,15 +1,16 @@
 import UIKit
 import Capacitor
+import WebKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UITabBarDelegate, WKScriptMessageHandler {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         gcInstallPrivacyShield()
-        // GC_IOS_CUSTOM_GLASS_TAB_BAR_ONLY
+        gcInstallNativeLiquidGlassTabBar()
         #if DEBUG
         // GC_IOS_SIMULATOR_MEDIA_PROBE
         GCSimulatorMediaProbe.runIfRequested()
@@ -93,6 +94,180 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             values.isExcludedFromBackup = true
             try? url.setResourceValues(values)
         }
+    }
+
+
+    // GC_IOS_NATIVE_LIQUID_GLASS_TAB_BAR
+    private weak var gcNativeTabBar: UITabBar?
+    private weak var gcNativeBridgeController: CAPBridgeViewController?
+    private var gcNativeTabBarInstallAttempts = 0
+    private let gcNativeTabRoutes = ["/", "/calls", "/contacts", "/wallet", "/settings"]
+    private static let gcNativeTabHandler = "gcNativeTabBar"
+
+    private func gcInstallNativeLiquidGlassTabBar() {
+        guard gcNativeTabBar == nil else { return }
+        DispatchQueue.main.async { [weak self] in self?.gcTryInstallNativeLiquidGlassTabBar() }
+    }
+
+    private func gcTryInstallNativeLiquidGlassTabBar() {
+        guard gcNativeTabBar == nil else { return }
+        guard let window = self.window,
+              let root = window.rootViewController,
+              let bridgeController = gcFindBridgeController(root),
+              let webView = bridgeController.bridge?.webView else {
+            gcNativeTabBarInstallAttempts += 1
+            if gcNativeTabBarInstallAttempts < 80 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                    self?.gcTryInstallNativeLiquidGlassTabBar()
+                }
+            }
+            return
+        }
+
+        // The web document paints continuously behind the floating system bar. These settings remove
+        // WKWebView's default white backing and prevent any synthetic bottom inset/strip.
+        bridgeController.extendedLayoutIncludesOpaqueBars = true
+        bridgeController.view.backgroundColor = UIColor.clear
+        webView.isOpaque = false
+        webView.backgroundColor = UIColor.clear
+        webView.scrollView.backgroundColor = UIColor.clear
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+
+        let tabBar = UITabBar(frame: .zero)
+        tabBar.translatesAutoresizingMaskIntoConstraints = false
+        tabBar.delegate = self
+        tabBar.tintColor = UIColor.systemGreen
+        tabBar.unselectedItemTintColor = UIColor.secondaryLabel
+        tabBar.itemPositioning = .automatic
+        tabBar.isTranslucent = true
+        tabBar.layer.zPosition = 1000
+        tabBar.accessibilityIdentifier = "gc-native-liquid-glass-tab-bar"
+        gcApplyNativeTabTitles(tabBar, language: Locale.preferredLanguages.first ?? "en")
+        tabBar.selectedItem = tabBar.items?.first
+        tabBar.isHidden = true
+        tabBar.isUserInteractionEnabled = false
+        tabBar.accessibilityElementsHidden = true
+
+        bridgeController.view.addSubview(tabBar)
+        let safeBottom = max(bridgeController.view.safeAreaInsets.bottom, window.safeAreaInsets.bottom)
+        NSLayoutConstraint.activate([
+            tabBar.leadingAnchor.constraint(equalTo: bridgeController.view.leadingAnchor),
+            tabBar.trailingAnchor.constraint(equalTo: bridgeController.view.trailingAnchor),
+            tabBar.bottomAnchor.constraint(equalTo: bridgeController.view.bottomAnchor),
+            tabBar.heightAnchor.constraint(equalToConstant: 50 + safeBottom),
+        ])
+        bridgeController.view.bringSubviewToFront(tabBar)
+        gcNativeBridgeController = bridgeController
+        gcNativeTabBar = tabBar
+
+        let controller = webView.configuration.userContentController
+        controller.removeScriptMessageHandler(forName: Self.gcNativeTabHandler)
+        controller.add(self, name: Self.gcNativeTabHandler)
+        let bootstrap = """
+        (() => {
+          let pending = false;
+          const publishNow = () => {
+            pending = false;
+            const visible = Boolean(document.querySelector('.gc-superapp'));
+            const root = document.documentElement;
+            if (root) {
+              if (visible) root.setAttribute('data-gc-native-tabbar', 'ios-native');
+              else root.removeAttribute('data-gc-native-tabbar');
+            }
+            window.webkit?.messageHandlers?.gcNativeTabBar?.postMessage({
+              hash: window.location.hash || '#/',
+              visible,
+              language: root?.lang || navigator.language || 'en'
+            });
+          };
+          const publish = () => {
+            if (pending) return;
+            pending = true;
+            window.requestAnimationFrame(publishNow);
+          };
+          if (window.__gcNativeTabBarListener) window.removeEventListener('hashchange', window.__gcNativeTabBarListener);
+          window.__gcNativeTabBarListener = publish;
+          window.addEventListener('hashchange', publish);
+          if (window.__gcNativeTabBarObserver) window.__gcNativeTabBarObserver.disconnect();
+          window.__gcNativeTabBarObserver = new MutationObserver(publish);
+          window.__gcNativeTabBarObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['lang'],
+            childList: true,
+            subtree: true
+          });
+          publish();
+        })();
+        """
+        controller.addUserScript(WKUserScript(source: bootstrap, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        webView.evaluateJavaScript(bootstrap)
+    }
+
+    private func gcFindBridgeController(_ controller: UIViewController) -> CAPBridgeViewController? {
+        if let bridge = controller as? CAPBridgeViewController { return bridge }
+        for child in controller.children {
+            if let bridge = gcFindBridgeController(child) { return bridge }
+        }
+        return nil
+    }
+
+    private func gcApplyNativeTabTitles(_ tabBar: UITabBar, language: String) {
+        let russian = language.lowercased().hasPrefix("ru")
+        let titles = russian
+            ? ["Чаты", "Звонки", "Контакты", "Кошелёк", "Ещё"]
+            : ["Chats", "Calls", "Contacts", "Wallet", "More"]
+        let symbols = ["message.fill", "phone.fill", "person.2.fill", "creditcard.fill", "ellipsis"]
+        let selectedTag = tabBar.selectedItem?.tag ?? 0
+        tabBar.items = titles.indices.map { index in
+            UITabBarItem(title: titles[index], image: UIImage(systemName: symbols[index]), tag: index)
+        }
+        tabBar.selectedItem = tabBar.items?.first(where: { $0.tag == selectedTag }) ?? tabBar.items?.first
+    }
+
+    private func gcSetNativeTabBar(visible: Bool, hash: String, language: String) {
+        guard let tabBar = gcNativeTabBar else { return }
+        gcApplyNativeTabTitles(tabBar, language: language)
+        tabBar.isHidden = !visible
+        tabBar.isUserInteractionEnabled = visible
+        tabBar.accessibilityElementsHidden = !visible
+        guard visible else { return }
+        gcSelectNativeTab(for: hash)
+        gcNativeBridgeController?.view.bringSubviewToFront(tabBar)
+    }
+
+    private func gcSelectNativeTab(for hash: String) {
+        let path = hash.replacingOccurrences(of: "#", with: "").split(separator: "?", maxSplits: 1).first.map(String.init) ?? "/"
+        let index: Int
+        if path == "/calls" || path.hasPrefix("/call/") {
+            index = 1
+        } else if path == "/contacts" {
+            index = 2
+        } else if path == "/wallet" || path == "/exchange" || path == "/cards" {
+            index = 3
+        } else if path == "/" || path.hasPrefix("/chat/") {
+            index = 0
+        } else {
+            index = 4
+        }
+        guard let items = gcNativeTabBar?.items, items.indices.contains(index) else { return }
+        gcNativeTabBar?.selectedItem = items[index]
+    }
+
+    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        guard tabBar === gcNativeTabBar, gcNativeTabRoutes.indices.contains(item.tag) else { return }
+        let route = gcNativeTabRoutes[item.tag]
+        let hash = route == "/" ? "#/" : "#\(route)"
+        gcNativeBridgeController?.bridge?.webView?.evaluateJavaScript("window.location.hash = '\(hash)';")
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == Self.gcNativeTabHandler else { return }
+        guard let payload = message.body as? [String: Any] else { return }
+        gcSetNativeTabBar(
+            visible: payload["visible"] as? Bool ?? false,
+            hash: payload["hash"] as? String ?? "#/",
+            language: payload["language"] as? String ?? "en"
+        )
     }
 
 }

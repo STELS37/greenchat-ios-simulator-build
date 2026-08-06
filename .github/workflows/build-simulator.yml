@@ -8,8 +8,8 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 45
     env:
-      RELEASE_TAG: ios-simulator-1.0.0-build-1000049-custom-glass-only
-      RELEASE_ASSET: GreenChat-iOS-Simulator-Custom-Glass-Only.zip
+      RELEASE_TAG: ios-simulator-1.0.0-build-1000052-native-liquid-glass-only
+      RELEASE_ASSET: GreenChat-iOS-Simulator-1000052-Native-Liquid-Glass-Only.zip
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout without marketplace actions
@@ -17,10 +17,9 @@ jobs:
         run: |
           set -euo pipefail
           git clone --depth 1 --branch main \
-            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" source
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" source
           cd source
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          git status --short
 
       - name: Select stable Xcode 26
         shell: bash
@@ -33,10 +32,8 @@ jobs:
               if path.is_symlink() or 'beta' in path.name.lower() or 'rc' in path.name.lower():
                   continue
               m=re.fullmatch(r'Xcode_(\d+(?:\.\d+)*)\.app', path.name)
-              if m:
-                  rows.append((tuple(map(int,m.group(1).split('.'))),str(path)))
-          if not rows:
-              raise SystemExit('Xcode 26 not installed')
+              if m: rows.append((tuple(map(int,m.group(1).split('.'))),str(path)))
+          if not rows: raise SystemExit('Xcode 26 not installed')
           print(max(rows)[1])
           PY
           )"
@@ -44,18 +41,37 @@ jobs:
           export DEVELOPER_DIR="$xcode_app/Contents/Developer"
           xcodebuild -version | tee "$RUNNER_TEMP/xcode-version.txt"
           test "$(xcodebuild -version | awk 'NR==1{print $2}' | cut -d. -f1)" -ge 26
-          node --version
-          npm --version
-          gh --version | head -1
 
-      - name: Install native package dependencies
+      - name: Install Capacitor dependencies
         shell: bash
         run: |
           set -euo pipefail
           cd source/mobile
           npm ci --ignore-scripts
+          test -d node_modules/@capacitor/core
+          test -d node_modules/@aparajita/capacitor-secure-storage
 
-      - name: Compile universal iOS Simulator app
+      - name: Verify sole native navigation contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile
+          delegate=ios/App/App/AppDelegate.swift
+          css=ios/App/App/public/gc-ios-liquid-glass.css
+          grep -F '// GC_IOS_NATIVE_LIQUID_GLASS_TAB_BAR' "$delegate"
+          grep -F 'let tabBar = UITabBar(frame: .zero)' "$delegate"
+          grep -F "data-gc-native-tabbar', 'ios-native'" "$delegate"
+          grep -F 'tabBar.isTranslucent = true' "$delegate"
+          grep -F 'webView.isOpaque = false' "$delegate"
+          grep -F 'contentInsetAdjustmentBehavior = .never' "$delegate"
+          ! grep -Eq 'GC_IOS_CUSTOM_GLASS_TAB_BAR_ONLY|GC_IOS26_LIQUID_GLASS_TAB_BAR|configureWithTransparentBackground|backgroundImage = UIImage|shadowImage = UIImage|standardAppearance =|scrollEdgeAppearance =' "$delegate"
+          grep -F 'display: none !important' "$css"
+          grep -F 'data-gc-native-tabbar="ios-native"' "$css"
+          grep -Rqs 'https://greenchat.globalsystem.cc' ios/App/App/public
+          ! grep -RqsE 'https://localhost/v1/auth|capacitor://localhost/v1/auth' ios/App/App/public
+          grep -F 'path: "../../../node_modules/' ios/App/CapApp-SPM/Package.swift
+
+      - name: Compile Xcode 26 iOS Simulator app
         shell: bash
         run: |
           set -euo pipefail
@@ -75,13 +91,11 @@ jobs:
           app="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator" -maxdepth 1 -type d -name '*.app' -print -quit)"
           test -n "$app" -a -d "$app"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Info.plist")" = app.greenchat
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = 1000049
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = 1000052
           executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")"
           test -x "$app/$executable"
           lipo -info "$app/$executable" | tee "$RUNNER_TEMP/architectures.txt"
           lipo -verify_arch arm64 "$app/$executable"
-          grep -F '// GC_IOS_CUSTOM_GLASS_TAB_BAR_ONLY' App/AppDelegate.swift
-          ! grep -Eq 'UITabBar|WKScriptMessageHandler|data-gc-native-tabbar|GC_IOS26_LIQUID_GLASS_TAB_BAR' App/AppDelegate.swift
           cp -R "$app" "$RUNNER_TEMP/GreenChat.app"
           cd "$RUNNER_TEMP"
           /usr/bin/zip -qry GreenChat-iOS-Simulator.zip GreenChat.app
@@ -95,36 +109,30 @@ jobs:
           xcrun simctl list -j > "$RUNNER_TEMP/simctl-inventory.json"
           python3 - "$RUNNER_TEMP/simctl-inventory.json" "$RUNNER_TEMP/sim-target.env" <<'PYCODE'
           import json, pathlib, shlex, sys
-          inventory = json.loads(pathlib.Path(sys.argv[1]).read_text())
-          runtimes = [
-              row for row in inventory.get("runtimes", [])
-              if row.get("isAvailable") and ".iOS-" in row.get("identifier", "")
-              and int(row.get("version", "0").split(".")[0]) >= 26
-          ]
-          if not runtimes:
-              raise SystemExit("no available iOS 26+ Simulator runtime")
-          runtimes.sort(key=lambda row: tuple(int(part) for part in row["version"].split(".")), reverse=True)
-          devices = [row for row in inventory.get("devicetypes", []) if row.get("name", "").startswith("iPhone")]
-          preferred_names = ["iPhone 17 Pro", "iPhone 16 Pro", "iPhone 15 Pro"]
-          device = next((row for name in preferred_names for row in devices if row.get("name") == name), devices[0])
-          pathlib.Path(sys.argv[2]).write_text("\n".join([
-              f"export GC_SIM_RUNTIME={shlex.quote(runtimes[0]['identifier'])}",
-              f"export GC_SIM_RUNTIME_NAME={shlex.quote(runtimes[0]['name'])}",
-              f"export GC_SIM_DEVICE_TYPE={shlex.quote(device['identifier'])}",
-              f"export GC_SIM_DEVICE_NAME={shlex.quote(device['name'])}",
-          ]) + "\n")
+          inventory=json.loads(pathlib.Path(sys.argv[1]).read_text())
+          runtimes=[r for r in inventory.get('runtimes',[]) if r.get('isAvailable') and '.iOS-' in r.get('identifier','') and int(r.get('version','0').split('.')[0]) >= 26]
+          if not runtimes: raise SystemExit('no available iOS 26+ runtime')
+          runtimes.sort(key=lambda r: tuple(map(int,r['version'].split('.'))), reverse=True)
+          devices=[d for d in inventory.get('devicetypes',[]) if d.get('name','').startswith('iPhone')]
+          preferred=['iPhone 17 Pro','iPhone 16 Pro','iPhone 15 Pro']
+          device=next((d for n in preferred for d in devices if d.get('name')==n),devices[0])
+          pathlib.Path(sys.argv[2]).write_text('\n'.join([
+            f"export GC_SIM_RUNTIME={shlex.quote(runtimes[0]['identifier'])}",
+            f"export GC_SIM_RUNTIME_NAME={shlex.quote(runtimes[0]['name'])}",
+            f"export GC_SIM_DEVICE_TYPE={shlex.quote(device['identifier'])}",
+            f"export GC_SIM_DEVICE_NAME={shlex.quote(device['name'])}",
+          ])+'\n')
           PYCODE
           source "$RUNNER_TEMP/sim-target.env"
-          udid="$(xcrun simctl create GreenChat-Custom-Glass-Only "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
+          udid="$(xcrun simctl create GreenChat-Native-Liquid-Glass "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
           trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true; xcrun simctl delete "$udid" >/dev/null 2>&1 || true' EXIT
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" -b
           xcrun simctl install "$udid" "$RUNNER_TEMP/GreenChat.app"
           xcrun simctl launch --terminate-running-process "$udid" app.greenchat | tee "$RUNNER_TEMP/simulator-launch.txt"
-          sleep 12
+          sleep 8
           xcrun simctl get_app_container "$udid" app.greenchat app | tee "$RUNNER_TEMP/simulator-app-container.txt"
-          printf 'device=%s\nruntime=%s\n' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME" \
-            | tee "$RUNNER_TEMP/simulator-target.txt"
+          printf 'device=%s\nruntime=%s\n' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME" | tee "$RUNNER_TEMP/simulator-target.txt"
 
       - name: Publish verified ZIP
         shell: bash
@@ -135,33 +143,26 @@ jobs:
           printf '%s  %s\n' "$checksum" "$RELEASE_ASSET" > "$RUNNER_TEMP/$RELEASE_ASSET.sha256"
           notes="$RUNNER_TEMP/release-notes.md"
           cat > "$notes" <<EOF
-          GreenChat 1.0.0 build 1000049.
+          GreenChat 1.0.0 build 1000052.
 
-          - Compiled with Xcode 26+ for iOS Simulator.
-          - ARM64 iOS Simulator build for Appetize and Apple Silicon Simulator.
-          - The standard native UIKit UITabBar is completely removed.
-          - Exactly one custom floating Liquid Glass capsule remains, including its translucent background.
-          - There is no full-width white system strip or duplicate navigation.
-          - Authentication gating remains enabled: the capsule exists only after login.
+          - Compiled with Xcode 26+ for the ARM64 iOS Simulator.
+          - Exactly one native UIKit UITabBar is present.
+          - iOS 26 renders the standard system bar with Liquid Glass.
+          - GreenChat HTML navigation is always hidden on iOS.
+          - The WebView reaches the device edge; no white/grey backing strip is reserved below the bar.
+          - Production authentication origin: https://greenchat.globalsystem.cc.
           - SHA-256: $checksum
           EOF
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
-              "$RUNNER_TEMP/$RELEASE_ASSET" \
-              "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \
-              "$RUNNER_TEMP/architectures.txt" \
-              "$RUNNER_TEMP/xcode-version.txt" \
-              "$RUNNER_TEMP/simulator-target.txt"
+              "$RUNNER_TEMP/$RELEASE_ASSET" "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \
+              "$RUNNER_TEMP/architectures.txt" "$RUNNER_TEMP/xcode-version.txt" "$RUNNER_TEMP/simulator-target.txt"
             gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --notes-file "$notes"
           else
             gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-              --target "$GITHUB_SHA" \
-              --title 'GreenChat iOS Simulator — Custom Glass Only' \
+              --target "$GITHUB_SHA" --title 'GreenChat iOS Simulator — Native Liquid Glass Only' \
               --notes-file "$notes" \
-              "$RUNNER_TEMP/$RELEASE_ASSET" \
-              "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \
-              "$RUNNER_TEMP/architectures.txt" \
-              "$RUNNER_TEMP/xcode-version.txt" \
-              "$RUNNER_TEMP/simulator-target.txt"
+              "$RUNNER_TEMP/$RELEASE_ASSET" "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \
+              "$RUNNER_TEMP/architectures.txt" "$RUNNER_TEMP/xcode-version.txt" "$RUNNER_TEMP/simulator-target.txt"
           fi
           gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets | jq .
