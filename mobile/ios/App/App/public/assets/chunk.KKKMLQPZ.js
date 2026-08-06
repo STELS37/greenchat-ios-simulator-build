@@ -1,0 +1,2 @@
+var s=["spam","abuse","csam","other"];function p(e,t){return e.t(`report.reason.${t}`)}function i(e,t,o){let r={kind:e,target_id:t,reason:o.reason},n=o.comment.trim().slice(0,500);return n&&(r.comment=n),r}function a(e){return e.trim().replace(/^@+/,"")}function c(e,t){let o=a(t).toLowerCase();if(!o)return null;for(let r of e.users)if(typeof r.username=="string"&&r.username.toLowerCase()===o)return r;return null}export{s as a,p as b,i as c,a as d,c as e};
+//# sourceMappingURL=chunk.KKKMLQPZ.js.map

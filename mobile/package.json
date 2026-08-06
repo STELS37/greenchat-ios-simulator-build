@@ -1,0 +1,48 @@
+{
+  "name": "green-chat-mobile",
+  "version": "1.0.0-beta.9",
+  "private": true,
+  "description": "Green Chat Capacitor shell (Android/iOS) over the shared web bundle",
+  "scripts": {
+    "sync": "node prepare.mjs && cap sync",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios",
+    "build:apk:debug": "cd android && ./gradlew assembleDebug",
+    "build:apk:release": "node build-android-release.mjs",
+    "configure:ios": "node ios-configure.mjs ios/App/App/Info.plist",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test \"*.test.mjs\" && node --test --experimental-strip-types \"bridge/*.test.ts\"",
+    "prepare:www": "node prepare.mjs",
+    "generate:ios": "node ios-generate.mjs --clean",
+    "build:reality-engine": "bash build-reality-engine.sh --build",
+    "verify:reality-engine": "bash build-reality-engine.sh --verify",
+    "build:gpl-source": "bash build-gpl-source-bundle.sh --build",
+    "verify:gpl-source": "bash build-gpl-source-bundle.sh --verify",
+    "build:messenger:direct-apk": "node build-messenger-direct-apk.mjs",
+    "build:messenger:test-apk": "node build-messenger-test-apk.mjs",
+    "build:messenger:store-aab": "node build-messenger-store-aab.mjs",
+    "verify:messenger-artifacts": "node verify-messenger-artifacts.mjs",
+    "sbom:messenger": "node generate-messenger-sbom.mjs",
+    "compare:messenger-artifacts": "node compare-messenger-artifacts.mjs"
+  },
+  "dependencies": {
+    "@aparajita/capacitor-secure-storage": "^8.0.0",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/browser": "^8.0.3",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/ios": "^8.4.1",
+    "@capacitor/local-notifications": "^8.2.0",
+    "@capacitor/push-notifications": "^8.1.1",
+    "@capacitor/share": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.9.3"
+  }
+}

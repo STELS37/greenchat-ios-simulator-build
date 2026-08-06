@@ -1,0 +1,2 @@
+function r(e){if(e&&typeof e=="object"&&e.name==="ApiError"){let t=e.code;if(typeof t=="string")return t}return null}function n(e){return!!e&&typeof e=="object"&&e.name==="NetworkError"}function o(e){if(e&&typeof e=="object"&&e.name==="ApiError"){let t=e.data;if(t&&typeof t=="object")return t}return{}}function s(e,t){return n(e)?t.t("errors.network"):t.error(r(e))}export{r as a,n as b,o as c,s as d};
+//# sourceMappingURL=chunk.LTA4DV3D.js.map

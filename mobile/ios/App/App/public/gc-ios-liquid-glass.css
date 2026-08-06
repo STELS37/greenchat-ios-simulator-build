@@ -1,0 +1,78 @@
+/* iOS-only finish for the shared GreenChat interface. The native store bridge stamps
+   data-gc-native-shell="ios" before the app bundle starts, so Android/web remain byte-for-byte styled
+   by their normal theme. This is progressive enhancement: older WKWebView versions fall back to the
+   translucent background without losing contrast or controls. */
+:root[data-gc-native-shell="ios"] {
+  --gc-ios-glass: color-mix(in srgb, var(--gc-bg-elevated, #ffffff) 72%, transparent);
+  --gc-ios-glass-strong: color-mix(in srgb, var(--gc-bg-elevated, #ffffff) 86%, transparent);
+  --gc-ios-glass-border: color-mix(in srgb, var(--gc-fg, #101828) 12%, transparent);
+  --gc-ios-glass-shadow: 0 10px 32px rgb(15 23 42 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.42);
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root[data-gc-native-shell="ios"] body {
+  overscroll-behavior-y: none;
+  background:
+    radial-gradient(120% 72% at 12% -8%, rgb(48 209 88 / 0.10), transparent 54%),
+    radial-gradient(100% 68% at 100% 0%, rgb(10 132 255 / 0.10), transparent 58%),
+    var(--gc-bg, #f2f4f7);
+}
+
+:root[data-gc-native-shell="ios"] :is(
+  .gc-chats-header,
+  .gc-settings-header,
+  .gc-chat-header,
+  .gc-composer,
+  .gc-shell-nav,
+  .gc-bottom-nav,
+  .gc-tabs
+) {
+  background: var(--gc-ios-glass);
+  border-color: var(--gc-ios-glass-border);
+  box-shadow: var(--gc-ios-glass-shadow);
+  -webkit-backdrop-filter: saturate(175%) blur(24px);
+  backdrop-filter: saturate(175%) blur(24px);
+}
+
+:root[data-gc-native-shell="ios"] :is(
+  .gc-composer-inputwrap,
+  .gc-chats-search,
+  .gc-settings-panel,
+  .gc-account-card,
+  .gc-more-group,
+  .gc-modal,
+  .gc-sheet
+) {
+  background: var(--gc-ios-glass-strong);
+  border: 1px solid var(--gc-ios-glass-border);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.36);
+  -webkit-backdrop-filter: saturate(155%) blur(18px);
+  backdrop-filter: saturate(155%) blur(18px);
+}
+
+:root[data-gc-native-shell="ios"] :is(.gc-icon-btn, .gc-btn, .gc-tab, .gc-composer-send) {
+  transition: transform 120ms ease, filter 120ms ease, background-color 160ms ease;
+}
+
+:root[data-gc-native-shell="ios"] :is(.gc-icon-btn, .gc-btn, .gc-tab, .gc-composer-send):active {
+  transform: scale(0.965);
+  filter: saturate(1.08);
+}
+
+:root[data-gc-native-shell="ios"] .gc-chat-row {
+  border-radius: 18px;
+}
+
+:root[data-gc-native-shell="ios"] .gc-chat-row:active {
+  transform: scale(0.992);
+}
+
+:root[data-gc-native-shell="ios"] .gc-composer {
+  padding-bottom: max(var(--gc-native-safe-bottom, 0px), env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-gc-native-shell="ios"] :is(.gc-icon-btn, .gc-btn, .gc-tab, .gc-composer-send, .gc-chat-row) {
+    transition: none;
+  }
+}
