@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Green Chat</title>
+  <link rel="stylesheet" href="./desktop-message-notification.css">
+</head>
+<body>
+  <main id="notification" class="gc-notification" role="button" tabindex="0" aria-label="Открыть новое сообщение в Green Chat">
+    <span class="gc-notification__glow" aria-hidden="true"></span>
+    <span class="gc-notification__icon" aria-hidden="true">
+      <img src="./icon.svg" alt="">
+      <span class="gc-notification__pulse"></span>
+    </span>
+    <span class="gc-notification__content">
+      <span class="gc-notification__eyebrow">
+        <strong>Green Chat</strong>
+        <span id="count" class="gc-notification__count" hidden></span>
+      </span>
+      <span id="body" class="gc-notification__body">Новое сообщение</span>
+      <span class="gc-notification__hint">Нажмите, чтобы открыть чат</span>
+    </span>
+    <button id="close" class="gc-notification__close" type="button" aria-label="Закрыть уведомление">×</button>
+    <span class="gc-notification__progress" aria-hidden="true"></span>
+  </main>
+  <script type="module" src="./desktop-message-notification.js"></script>
+</body>
+</html>

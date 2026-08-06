@@ -8,8 +8,8 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 45
     env:
-      RELEASE_TAG: ios-simulator-1.0.0-build-1000048-transparent-tabbar
-      RELEASE_ASSET: GreenChat-iOS-Simulator-Transparent-Tab-Bar.zip
+      RELEASE_TAG: ios-simulator-1.0.0-build-1000049-custom-glass-only
+      RELEASE_ASSET: GreenChat-iOS-Simulator-Custom-Glass-Only.zip
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout without marketplace actions
@@ -69,19 +69,19 @@ jobs:
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             ONLY_ACTIVE_ARCH=NO \
-            ARCHS="arm64 x86_64" \
+            ARCHS=arm64 \
             PRODUCT_BUNDLE_IDENTIFIER=app.greenchat \
             build | tee "$RUNNER_TEMP/xcodebuild-simulator.log"
           app="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator" -maxdepth 1 -type d -name '*.app' -print -quit)"
           test -n "$app" -a -d "$app"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Info.plist")" = app.greenchat
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = 1000048
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = 1000049
           executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")"
           test -x "$app/$executable"
           lipo -info "$app/$executable" | tee "$RUNNER_TEMP/architectures.txt"
-          lipo -verify_arch arm64 x86_64 "$app/$executable"
-          strings "$app/$executable" | grep -F 'gc-liquid-glass-tab-bar'
-          strings "$app/$executable" | grep -F 'configureWithTransparentBackground'
+          lipo -verify_arch arm64 "$app/$executable"
+          grep -F '// GC_IOS_CUSTOM_GLASS_TAB_BAR_ONLY' App/AppDelegate.swift
+          ! grep -Eq 'UITabBar|WKScriptMessageHandler|data-gc-native-tabbar|GC_IOS26_LIQUID_GLASS_TAB_BAR' App/AppDelegate.swift
           cp -R "$app" "$RUNNER_TEMP/GreenChat.app"
           cd "$RUNNER_TEMP"
           /usr/bin/zip -qry GreenChat-iOS-Simulator.zip GreenChat.app
@@ -115,7 +115,7 @@ jobs:
           ]) + "\n")
           PYCODE
           source "$RUNNER_TEMP/sim-target.env"
-          udid="$(xcrun simctl create GreenChat-Transparent-Tab-Bar "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
+          udid="$(xcrun simctl create GreenChat-Custom-Glass-Only "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
           trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true; xcrun simctl delete "$udid" >/dev/null 2>&1 || true' EXIT
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" -b
@@ -135,13 +135,14 @@ jobs:
           printf '%s  %s\n' "$checksum" "$RELEASE_ASSET" > "$RUNNER_TEMP/$RELEASE_ASSET.sha256"
           notes="$RUNNER_TEMP/release-notes.md"
           cat > "$notes" <<EOF
-          GreenChat 1.0.0 build 1000048.
+          GreenChat 1.0.0 build 1000049.
 
           - Compiled with Xcode 26+ for iOS Simulator.
-          - Universal simulator binary: arm64 + x86_64.
-          - The large grey outer UITabBar capsule, material, separator and shadow are removed.
-          - Only the navigation items and active selection remain above the continuing app screen.
-          - Authentication gating remains enabled: tabs are hidden before login.
+          - ARM64 iOS Simulator build for Appetize and Apple Silicon Simulator.
+          - The standard native UIKit UITabBar is completely removed.
+          - Exactly one custom floating Liquid Glass capsule remains, including its translucent background.
+          - There is no full-width white system strip or duplicate navigation.
+          - Authentication gating remains enabled: the capsule exists only after login.
           - SHA-256: $checksum
           EOF
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
@@ -155,7 +156,7 @@ jobs:
           else
             gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
-              --title 'GreenChat iOS Simulator — Transparent Tab Bar' \
+              --title 'GreenChat iOS Simulator — Custom Glass Only' \
               --notes-file "$notes" \
               "$RUNNER_TEMP/$RELEASE_ASSET" \
               "$RUNNER_TEMP/$RELEASE_ASSET.sha256" \

@@ -1,0 +1,101 @@
+const EVENT_NAME = "gc://desktop-message-notification";
+const VISIBLE_MS = 7000;
+const LEAVE_MS = 220;
+
+const tauri = window.__TAURI__;
+const invoke = tauri?.core?.invoke;
+const listen = tauri?.event?.listen;
+const root = document.getElementById("notification");
+const body = document.getElementById("body");
+const count = document.getElementById("count");
+const close = document.getElementById("close");
+
+let currentId = 0;
+let dismissTimer = 0;
+let hideTimer = 0;
+let leaving = false;
+
+function clearTimers() {
+  window.clearTimeout(dismissTimer);
+  window.clearTimeout(hideTimer);
+  dismissTimer = 0;
+  hideTimer = 0;
+}
+
+function validPayload(value) {
+  if (!value || typeof value !== "object") return null;
+  const id = Number(value.id);
+  const total = Number(value.count);
+  if (!Number.isSafeInteger(id) || id <= 0) return null;
+  return {
+    id,
+    count: Number.isFinite(total) ? Math.max(1, Math.trunc(total)) : 1,
+    body: typeof value.body === "string" && value.body.trim() ? value.body.trim() : "Новое сообщение",
+  };
+}
+
+function finish(command) {
+  const id = currentId;
+  currentId = 0;
+  leaving = false;
+  root.classList.remove("is-visible", "is-leaving");
+  if (id > 0 && invoke) void invoke(command, { id }).catch(() => {});
+}
+
+function leave(command = "desktop_message_notification_dismiss") {
+  if (!currentId || leaving) return;
+  leaving = true;
+  clearTimers();
+  root.classList.remove("is-visible");
+  root.classList.add("is-leaving");
+  hideTimer = window.setTimeout(() => finish(command), LEAVE_MS);
+}
+
+function show(raw) {
+  const payload = validPayload(raw);
+  if (!payload) return;
+  clearTimers();
+  leaving = false;
+  currentId = payload.id;
+  body.textContent = payload.body;
+  count.hidden = payload.count <= 1;
+  count.textContent = payload.count > 99 ? "99+" : String(payload.count);
+  root.setAttribute("aria-label", `${payload.body}. Открыть Green Chat`);
+
+  root.classList.remove("is-visible", "is-leaving");
+  void root.offsetWidth;
+  window.requestAnimationFrame(() => root.classList.add("is-visible"));
+  dismissTimer = window.setTimeout(() => leave(), VISIBLE_MS);
+}
+
+root.addEventListener("click", (event) => {
+  if (event.target === close || close.contains(event.target)) return;
+  leave("desktop_message_notification_open");
+});
+
+root.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    leave("desktop_message_notification_open");
+  }
+});
+
+close.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  leave();
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") leave();
+});
+
+window.__gcShowDesktopMessageNotification = show;
+
+if (typeof listen === "function") {
+  await listen(EVENT_NAME, (event) => show(event?.payload));
+}
+
+if (typeof invoke === "function") {
+  await invoke("desktop_message_notification_ready").catch(() => {});
+}

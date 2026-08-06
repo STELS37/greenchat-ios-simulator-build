@@ -12,15 +12,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.4.1"),
-        .package(name: "AparajitaCapacitorSecureStorage", path: "../../../node_modules/@aparajita/capacitor-secure-storage"),
-        .package(name: "CapacitorApp", path: "../../../node_modules/@capacitor/app"),
-        .package(name: "CapacitorBrowser", path: "../../../node_modules/@capacitor/browser"),
-        .package(name: "CapacitorFilesystem", path: "../../../node_modules/@capacitor/filesystem"),
-        .package(name: "CapacitorLocalNotifications", path: "../../../node_modules/@capacitor/local-notifications"),
-        .package(name: "CapacitorPushNotifications", path: "../../../node_modules/@capacitor/push-notifications"),
-        .package(name: "CapacitorShare", path: "../../../node_modules/@capacitor/share"),
-        .package(name: "CapacitorSplashScreen", path: "../../../node_modules/@capacitor/splash-screen"),
-        .package(name: "CapacitorStatusBar", path: "../../../node_modules/@capacitor/status-bar")
+        .package(name: "AparajitaCapacitorSecureStorage", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@aparajita/capacitor-secure-storage"),
+        .package(name: "CapacitorApp", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/app"),
+        .package(name: "CapacitorBrowser", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/browser"),
+        .package(name: "CapacitorFilesystem", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/filesystem"),
+        .package(name: "CapacitorLocalNotifications", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/local-notifications"),
+        .package(name: "CapacitorPushNotifications", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/push-notifications"),
+        .package(name: "CapacitorShare", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/share"),
+        .package(name: "CapacitorSplashScreen", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/splash-screen"),
+        .package(name: "CapacitorStatusBar", path: "../../../../../../../srv/projects/green_chat/clients/mobile/node_modules/@capacitor/status-bar")
     ],
     targets: [
         .target(

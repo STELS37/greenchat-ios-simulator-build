@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../ui/src/screens/qr_login_types.ts"],
+  "sourcesContent": ["export type QrLoginStatus = \"starting\" | \"waiting\" | \"offline\";\n\nexport interface QrLoginReady {\n  token: string;\n  link: string;\n  expiresAt: number;\n}\n\nexport interface QrLoginOptions {\n  signal?: AbortSignal;\n  onReady?: (attempt: QrLoginReady) => void;\n  onStatus?: (status: QrLoginStatus) => void;\n  onPowProgress?: (attempts: number) => void;\n  pollIntervalMs?: number;\n  now?: () => number;\n  devicePubkey?: string;\n}\n\nexport type QrLoginErrorCode = \"QR_DENIED\" | \"QR_CANCELLED\" | \"QR_EXPIRED\" | \"QR_INVALID_RESPONSE\";\n\nexport class QrLoginError extends Error {\n  readonly code: QrLoginErrorCode;\n  constructor(code: QrLoginErrorCode, message: string) {\n    super(message);\n    this.name = \"QrLoginError\";\n    this.code = code;\n  }\n}\n"],
+  "mappings": "AAoBO,IAAMA,EAAN,cAA2B,KAAM,CAC7B,KACT,YAAYC,EAAwBC,EAAiB,CACnD,MAAMA,CAAO,EACb,KAAK,KAAO,eACZ,KAAK,KAAOD,CACd,CACF",
+  "names": ["QrLoginError", "code", "message"]
+}
