@@ -93,16 +93,12 @@ jobs:
           devices = [row for row in inventory.get("devicetypes", []) if row.get("name", "").startswith("iPhone")]
           preferred_names = ["iPhone 17 Pro", "iPhone 16 Pro", "iPhone 15 Pro"]
           device = next((row for name in preferred_names for row in devices if row.get("name") == name), devices[0])
-          pathlib.Path(sys.argv[2]).write_text(
-              f"GC_SIM_RUNTIME={runtimes[0]['identifier']}
-"
-              f"GC_SIM_RUNTIME_NAME={runtimes[0]['name']}
-"
-              f"GC_SIM_DEVICE_TYPE={device['identifier']}
-"
-              f"GC_SIM_DEVICE_NAME={device['name']}
-"
-          )
+          pathlib.Path(sys.argv[2]).write_text("\n".join([
+              f"GC_SIM_RUNTIME={runtimes[0]['identifier']}",
+              f"GC_SIM_RUNTIME_NAME={runtimes[0]['name']}",
+              f"GC_SIM_DEVICE_TYPE={device['identifier']}",
+              f"GC_SIM_DEVICE_NAME={device['name']}",
+          ]) + "\n")
           PYCODE
           source "$RUNNER_TEMP/sim-target.env"
           udid="$(xcrun simctl create GreenChat-Liquid-Glass "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
@@ -116,10 +112,10 @@ jobs:
           sleep 12
           xcrun simctl get_app_container "$udid" app.greenchat app | tee "$RUNNER_TEMP/simulator-app-container.txt"
           xcrun simctl io "$udid" screenshot --type=png "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png"
-          /usr/bin/sips -g pixelWidth -g pixelHeight "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png"             | tee "$RUNNER_TEMP/screenshot-metadata.txt"
-          printf 'device=%s
-runtime=%s
-' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME"             | tee "$RUNNER_TEMP/simulator-target.txt"
+          /usr/bin/sips -g pixelWidth -g pixelHeight "$RUNNER_TEMP/greenchat-ios26-liquid-glass.png" \
+            | tee "$RUNNER_TEMP/screenshot-metadata.txt"
+          printf 'device=%s\nruntime=%s\n' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME" \
+            | tee "$RUNNER_TEMP/simulator-target.txt"
 
       - uses: actions/upload-artifact@v4
         with:
