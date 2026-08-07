@@ -1,0 +1,210 @@
+name: build-greenchat-ios-staged-resolved-exact
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact helper commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf source
+          mkdir source
+          cd source
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --quiet --depth 1 origin "$GITHUB_SHA"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Read staged identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile
+          source_sha="$(tr -d '\r\n' < SOURCE_SHA.txt)"
+          [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
+          builds="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' ios/App/App.xcodeproj/project.pbxproj | sed -E 's/.*= ([0-9]+);/\1/' | sort -u)"
+          build_count="$(printf '%s\n' "$builds" | sed '/^$/d' | wc -l | tr -d ' ')"
+          test "$build_count" -eq 1
+          build="$builds"
+          python3 - "$source_sha" <<'PY'
+          import json, pathlib, sys
+          source_sha=sys.argv[1]
+          profile=json.loads(pathlib.Path('ios/App/App/public/.gc-build-profile.json').read_text())
+          if profile.get('build_id') != source_sha:
+              raise SystemExit(f"build profile mismatch: {profile.get('build_id')} != {source_sha}")
+          PY
+          echo "GC_SOURCE_SHA=$source_sha" >> "$GITHUB_ENV"
+          echo "GC_BUILD_NUMBER=$build" >> "$GITHUB_ENV"
+          echo "GC_RELEASE_TAG=ios-simulator-1.0.0-build-${build}-${source_sha:0:8}-verified" >> "$GITHUB_ENV"
+          echo "GC_RELEASE_ASSET=GreenChat-iOS-Simulator-${build}-Verified.zip" >> "$GITHUB_ENV"
+          printf 'source=%s\nbuild=%s\n' "$source_sha" "$build"
+
+      - name: Select stable Xcode 26
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcode_app="$(python3 - <<'PY'
+          import pathlib, re
+          rows=[]
+          for path in pathlib.Path('/Applications').glob('Xcode_26*.app'):
+              name=path.name.lower()
+              if path.is_symlink() or 'beta' in name or '_rc' in name or '-rc' in name:
+                  continue
+              m=re.fullmatch(r'Xcode_(\d+(?:\.\d+)*)\.app', path.name)
+              if m:
+                  rows.append((tuple(map(int,m.group(1).split('.'))), str(path)))
+          if not rows:
+              raise SystemExit('Xcode 26 not installed')
+          print(max(rows)[1])
+          PY
+          )"
+          export DEVELOPER_DIR="$xcode_app/Contents/Developer"
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
+          xcodebuild -version | tee "$RUNNER_TEMP/xcode-version.txt"
+          test "$(xcodebuild -version | awk 'NR==1{print $2}' | cut -d. -f1)" -ge 26
+
+      - name: Install Capacitor dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile
+          npm ci --ignore-scripts
+          test -d node_modules/@capacitor/core
+          test -d node_modules/@capacitor/ios
+
+
+      - name: Resolve Swift packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile/ios/App
+          xcodebuild \
+            -resolvePackageDependencies \
+            -project App.xcodeproj \
+            -scheme App \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/SourcePackages" \
+            | tee "$RUNNER_TEMP/xcodebuild-resolve.log"
+
+      - name: Verify native navigation contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile
+          delegate=ios/App/App/AppDelegate.swift
+          css=ios/App/App/public/gc-ios-liquid-glass.css
+          grep -F '// GC_IOS_NATIVE_LIQUID_GLASS_TAB_BAR' "$delegate"
+          grep -F 'let tabBar = UITabBar(frame: .zero)' "$delegate"
+          grep -F "shell.classList.contains('gc-superapp-detail')" "$delegate"
+          grep -F 'UIAccessibility.isReduceMotionEnabled' "$delegate"
+          grep -F '.beginFromCurrentState' "$delegate"
+          grep -F 'tabBar.isTranslucent = true' "$delegate"
+          ! grep -Eq 'configureWithTransparentBackground|backgroundImage = UIImage|shadowImage = UIImage|standardAppearance =|scrollEdgeAppearance =' "$delegate"
+          grep -F 'display: none !important' "$css"
+          grep -F 'data-gc-native-tabbar="ios-native"' "$css"
+          grep -Rqs 'https://greenchat.globalsystem.cc' ios/App/App/public
+          ! grep -RqsE 'https://localhost/v1/auth|capacitor://localhost/v1/auth' ios/App/App/public
+
+      - name: Compile Xcode 26 Simulator app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source/mobile/ios/App
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/SourcePackages" \
+            -disableAutomaticPackageResolution \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            ARCHS=arm64 \
+            PRODUCT_BUNDLE_IDENTIFIER=app.greenchat \
+            build | tee "$RUNNER_TEMP/xcodebuild-simulator.log"
+          app="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          test -n "$app" -a -d "$app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Info.plist")" = app.greenchat
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = "$GC_BUILD_NUMBER"
+          executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")"
+          test -x "$app/$executable"
+          lipo -verify_arch arm64 "$app/$executable"
+          lipo -info "$app/$executable" | tee "$RUNNER_TEMP/architectures.txt"
+          cp -R "$app" "$RUNNER_TEMP/GreenChat.app"
+          cd "$RUNNER_TEMP"
+          /usr/bin/zip -qry GreenChat-iOS-Simulator.zip GreenChat.app
+          unzip -t GreenChat-iOS-Simulator.zip | tee simulator-zip-verify.txt
+
+      - name: Launch on iOS 26 Simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun simctl list -j > "$RUNNER_TEMP/simctl-inventory.json"
+          python3 - "$RUNNER_TEMP/simctl-inventory.json" "$RUNNER_TEMP/sim-target.env" <<'PY'
+          import json, pathlib, shlex, sys
+          inventory=json.loads(pathlib.Path(sys.argv[1]).read_text())
+          runtimes=[r for r in inventory.get('runtimes',[]) if r.get('isAvailable') and '.iOS-' in r.get('identifier','') and int(r.get('version','0').split('.')[0]) >= 26]
+          if not runtimes:
+              raise SystemExit('no available iOS 26+ runtime')
+          runtimes.sort(key=lambda r: tuple(map(int,r['version'].split('.'))), reverse=True)
+          devices=[d for d in inventory.get('devicetypes',[]) if d.get('name','').startswith('iPhone')]
+          preferred=['iPhone 17 Pro','iPhone 16 Pro','iPhone 15 Pro']
+          device=next((d for n in preferred for d in devices if d.get('name')==n), devices[0])
+          pathlib.Path(sys.argv[2]).write_text('\n'.join([
+              f"export GC_SIM_RUNTIME={shlex.quote(runtimes[0]['identifier'])}",
+              f"export GC_SIM_RUNTIME_NAME={shlex.quote(runtimes[0]['name'])}",
+              f"export GC_SIM_DEVICE_TYPE={shlex.quote(device['identifier'])}",
+              f"export GC_SIM_DEVICE_NAME={shlex.quote(device['name'])}",
+          ])+'\n')
+          PY
+          source "$RUNNER_TEMP/sim-target.env"
+          udid="$(xcrun simctl create GreenChat-Exact "$GC_SIM_DEVICE_TYPE" "$GC_SIM_RUNTIME")"
+          trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true; xcrun simctl delete "$udid" >/dev/null 2>&1 || true' EXIT
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl install "$udid" "$RUNNER_TEMP/GreenChat.app"
+          xcrun simctl launch --terminate-running-process "$udid" app.greenchat | tee "$RUNNER_TEMP/simulator-launch.txt"
+          sleep 5
+          xcrun simctl get_app_container "$udid" app.greenchat app | tee "$RUNNER_TEMP/simulator-app-container.txt"
+          printf 'device=%s\nruntime=%s\n' "$GC_SIM_DEVICE_NAME" "$GC_SIM_RUNTIME_NAME" | tee "$RUNNER_TEMP/simulator-target.txt"
+
+      - name: Publish verified ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/GreenChat-iOS-Simulator.zip" "$RUNNER_TEMP/$GC_RELEASE_ASSET"
+          checksum="$(shasum -a 256 "$RUNNER_TEMP/$GC_RELEASE_ASSET" | awk '{print $1}')"
+          printf '%s  %s\n' "$checksum" "$GC_RELEASE_ASSET" > "$RUNNER_TEMP/$GC_RELEASE_ASSET.sha256"
+          notes="$RUNNER_TEMP/release-notes.md"
+          cat > "$notes" <<EOF
+          GreenChat iOS Simulator build $GC_BUILD_NUMBER.
+
+          - GreenChat source SHA: $GC_SOURCE_SHA
+          - Helper exact SHA: $GITHUB_SHA
+          - Xcode 26+ ARM64 Simulator build and iOS 26+ launch verified.
+          - One native UIKit UITabBar; HTML navigation is removed on iOS.
+          - Detail/full-screen states hide the native tab bar; visible root tabs reserve a safe layout inset so controls are never covered.
+          - Production API origin: https://greenchat.globalsystem.cc
+          - SHA-256: $checksum
+          EOF
+          if gh release view "$GC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+              "$RUNNER_TEMP/$GC_RELEASE_ASSET" "$RUNNER_TEMP/$GC_RELEASE_ASSET.sha256" \
+              "$RUNNER_TEMP/architectures.txt" "$RUNNER_TEMP/xcode-version.txt" "$RUNNER_TEMP/simulator-target.txt"
+            gh release edit "$GC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --notes-file "$notes" --prerelease
+          else
+            gh release create "$GC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+              --title "TEST — GreenChat iOS $GC_BUILD_NUMBER Exact Simulator" --notes-file "$notes" \
+              "$RUNNER_TEMP/$GC_RELEASE_ASSET" "$RUNNER_TEMP/$GC_RELEASE_ASSET.sha256" \
+              "$RUNNER_TEMP/architectures.txt" "$RUNNER_TEMP/xcode-version.txt" "$RUNNER_TEMP/simulator-target.txt"
+          fi
+          gh release view "$GC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets | jq .
