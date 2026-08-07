@@ -1,6 +1,6 @@
 {
   "algorithm": "sha256",
-  "build_id": "ff53223e8abf536e0650dbe47e3936ef817e9069",
+  "build_id": "7a56c6d22f516ddd7b2260cf4dd1d3b6a62afad6",
   "bundled_npm_packages": [
     "libsodium-sumo",
     "libsodium-wrappers-sumo",
@@ -19,6 +19,16 @@
       "size": 639
     },
     {
+      "path": "assets/app.KASHXBN6.js",
+      "sha256": "e1aeec7c530f0f756d5226d534e1eb8aa7ad67aaaf741031add8a3b33a0c0590",
+      "size": 686574
+    },
+    {
+      "path": "assets/app.KASHXBN6.js.map",
+      "sha256": "b4b7f67f924d7544fbb6b3c2bf2b45395f6cb0fe9bedf42d9ade3b764884eaa8",
+      "size": 3069386
+    },
+    {
       "path": "assets/app.KD2R6X5G.css",
       "sha256": "fab48a5f660cf3d11a39effdfc45e8bc8b79a0c35858646609fefeb70c0bc5b6",
       "size": 406979
@@ -27,16 +37,6 @@
       "path": "assets/app.KD2R6X5G.css.map",
       "sha256": "206daa78561017d64d7adf6a7c7522a5dff33585730882f9c2805872f1710adf",
       "size": 1152966
-    },
-    {
-      "path": "assets/app.LR4A2HBW.js",
-      "sha256": "63b40c83c0052d788c576135c00f3f9d664de0cb43217541b19955d92135851e",
-      "size": 686574
-    },
-    {
-      "path": "assets/app.LR4A2HBW.js.map",
-      "sha256": "b4b7f67f924d7544fbb6b3c2bf2b45395f6cb0fe9bedf42d9ade3b764884eaa8",
-      "size": 3069386
     },
     {
       "path": "assets/call-incoming.mp3",
@@ -730,7 +730,7 @@
     },
     {
       "path": "en/index.html",
-      "sha256": "9ea8ad055f9a8732da66d4e7fc4152d3e73e53fed6e21da73a043fb48c2bed13",
+      "sha256": "2a6422c05bfa6085ab01ddad461dd77272fae9693d9b9d2f695fe88c9d11f7c1",
       "size": 21396
     },
     {
@@ -755,7 +755,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "57a183dbbd32f1a7a0b2a80f6ca88f49c9b859c769eff55e5b65961212fb31af",
+      "sha256": "140cf0957f3d2ad4b4c4149fa76d08643e42e7d678778d5f8c3d31a264078a17",
       "size": 35348
     },
     {
@@ -830,7 +830,7 @@
     },
     {
       "path": "sw.js",
-      "sha256": "f91e38751cc1f0b7f357c399889d9f8b5ea2d9a7148a1d5dbd099e10db4e54d7",
+      "sha256": "2a20da529b2c045f45bc62c1c90d86f3ceb36347396d97ab46e128452abfb9f5",
       "size": 14886
     },
     {
@@ -856,5 +856,5 @@
   ],
   "profile": "development",
   "schema": "green-chat-web-build-profile/v2",
-  "payload_sha256": "5d0cb4b6976637ccbcffdfe58084b10b807c0745a2a744198ffbd7f0ba68a2f0"
+  "payload_sha256": "ae894784e5ad69a68ab8a2d3b938717968d2ae3e2dff9efa1515f40c2e1c7cae"
 }
