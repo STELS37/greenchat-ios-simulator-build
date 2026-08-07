@@ -115,7 +115,11 @@ jobs:
               raise SystemExit(f'expected to mirror the whole Swift package graph; changed only {changed} manifests')
           print(f'mirrored {changed} package manifests')
           PYCODE
-          ! grep -RqsE 'https://github.com/(ionic-team/capacitor-swift-pm|evgenyneu/keychain-swift|ionic-team/ion-ios-filesystem)\.git'             ios/App/CapApp-SPM node_modules/@capacitor node_modules/@aparajita
+          if find ios/App/CapApp-SPM node_modules/@capacitor node_modules/@aparajita -name Package.swift -type f -print0 \
+            | xargs -0 grep -HE 'https://github.com/(ionic-team/capacitor-swift-pm|evgenyneu/keychain-swift|ionic-team/ion-ios-filesystem)\.git'; then
+            echo 'remote Swift package URL survived mirror rewrite' >&2
+            exit 1
+          fi
 
       - name: Verify native navigation contract
         shell: bash
