@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		47434D4544494150524F0001 /* SimulatorMediaProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47434D4544494150524F0002 /* SimulatorMediaProbe.swift */; };
+		474343414C4C534F554E0001 /* greenchat_call_incoming.caf in Resources */ = {isa = PBXBuildFile; fileRef = 474343414C4C534F554E0002 /* greenchat_call_incoming.caf */; };
+		474343414C4C544F4E450001 /* CallTonePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474343414C4C544F4E450002 /* CallTonePlugin.swift */; };
 		4743534B504C5547494E0001 /* SecureKeyPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4743534B504C5547494E0002 /* SecureKeyPlugin.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
@@ -21,6 +23,8 @@
 
 /* Begin PBXFileReference section */
 		47434D4544494150524F0002 /* SimulatorMediaProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorMediaProbe.swift; sourceTree = "<group>"; };
+		474343414C4C534F554E0002 /* greenchat_call_incoming.caf */ = {isa = PBXFileReference; lastKnownFileType = audio.caf; path = greenchat_call_incoming.caf; sourceTree = "<group>"; };
+		474343414C4C544F4E450002 /* CallTonePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallTonePlugin.swift; sourceTree = "<group>"; };
 		4743534B504C5547494E0002 /* SecureKeyPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureKeyPlugin.swift; sourceTree = "<group>"; };
 		4743454E5449544C454D0001 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -70,6 +74,8 @@
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				4743534B504C5547494E0002 /* SecureKeyPlugin.swift */,
 				4743454E5449544C454D0001 /* App.entitlements */,
+				474343414C4C544F4E450002 /* CallTonePlugin.swift */,
+				474343414C4C534F554E0002 /* greenchat_call_incoming.caf */,
 				47434D4544494150524F0002 /* SimulatorMediaProbe.swift */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -147,6 +153,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				474343414C4C534F554E0001 /* greenchat_call_incoming.caf in Resources */,
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				50B271D11FEDC1A000F3C39B /* public in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
@@ -164,6 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4743534B504C5547494E0001 /* SecureKeyPlugin.swift in Sources */,
+				474343414C4C544F4E450001 /* CallTonePlugin.swift in Sources */,
 				47434D4544494150524F0001 /* SimulatorMediaProbe.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 			);
@@ -307,7 +315,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1000050;
+				CURRENT_PROJECT_VERSION = 1000054;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -330,7 +338,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1000050;
+				CURRENT_PROJECT_VERSION = 1000054;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (

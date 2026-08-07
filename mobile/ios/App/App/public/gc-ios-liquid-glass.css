@@ -107,11 +107,18 @@
 /* The native bridge stamps this only after the authenticated shell exists. It is intentionally a
    layout marker, not a second visual treatment: the page continues behind the floating UIKit bar. */
 :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios-native"] {
-  --gc-mobile-nav: 0px;
+  --gc-mobile-nav: var(--gc-ios-native-tabbar-overlay);
+}
+
+/* UIKit may visually float over the page, but interactive content must never live underneath it.
+   Reserve exactly the native bar height while it is visible. The HTML rail stays display:none, so
+   this creates no second bar/grey strip; it only gives lists, FABs and buttons a safe layout inset. */
+:root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios-native"] .gc-superapp {
+  padding-bottom: var(--gc-ios-native-tabbar-overlay);
 }
 
 :root[data-gc-native-shell="ios"][data-gc-native-tabbar="ios-native"] .gc-superapp-stage {
-  height: calc(100dvh - var(--gc-offer-h, 0px));
+  height: calc(100dvh - max(var(--gc-ios-native-tabbar-overlay), var(--gc-offer-h, 0px)));
 }
 
 @media (prefers-reduced-motion: reduce) {
