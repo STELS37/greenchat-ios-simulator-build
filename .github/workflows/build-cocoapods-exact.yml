@@ -87,7 +87,7 @@ jobs:
           cd mobile/ios/App
           xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/DerivedData" \
-            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO ARCHS=arm64 PRODUCT_BUNDLE_IDENTIFIER=app.greenchat \
+            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO ARCHS=arm64 \
             build | tee "$RUNNER_TEMP/xcodebuild-simulator.log"
           app="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphonesimulator" -maxdepth 1 -type d -name '*.app' -print -quit)"
           test -d "$app"
