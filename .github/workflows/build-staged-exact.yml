@@ -88,17 +88,20 @@ jobs:
           mkdir -p vendor
           git clone -q --depth 1 --branch 8.4.1 https://github.com/ionic-team/capacitor-swift-pm.git vendor/capacitor-swift-pm
           git clone -q --depth 1 --branch 21.0.0 https://github.com/evgenyneu/keychain-swift.git vendor/keychain-swift
+          git clone -q --depth 1 --branch 1.1.1 https://github.com/ionic-team/ion-ios-filesystem.git vendor/ion-ios-filesystem
           cap="$(pwd)/vendor/capacitor-swift-pm"
           keychain="$(pwd)/vendor/keychain-swift"
-          python3 - "$cap" "$keychain" <<'PY'
+          ionfs="$(pwd)/vendor/ion-ios-filesystem"
+          python3 - "$cap" "$keychain" "$ionfs" <<'PY'
           import pathlib, re, sys
-          cap, keychain = sys.argv[1:3]
+          cap, keychain, ionfs = sys.argv[1:4]
           manifests=[pathlib.Path('ios/App/CapApp-SPM/Package.swift'), *pathlib.Path('node_modules').glob('**/Package.swift')]
           changed=0
           for path in manifests:
               text=path.read_text()
               next_text=re.sub(r'\.package\(url: "https://github\.com/ionic-team/capacitor-swift-pm\.git",\s*(?:exact|from):\s*"[^"]+"\)', f'.package(path: "{cap}")', text)
               next_text=re.sub(r'\.package\(url: "https://github\.com/evgenyneu/keychain-swift\.git",\s*(?:exact|from):\s*"[^"]+"\)', f'.package(path: "{keychain}")', next_text)
+              next_text=re.sub(r'\.package\(url: "https://github\.com/ionic-team/ion-ios-filesystem\.git",\s*(?:exact|from):\s*"[^"]+"\)', f'.package(path: "{ionfs}")', next_text)
               if next_text != text:
                   path.write_text(next_text)
                   changed += 1
@@ -108,6 +111,7 @@ jobs:
           PY
           ! grep -Rqs 'github.com/ionic-team/capacitor-swift-pm.git' ios/App/CapApp-SPM node_modules/@capacitor node_modules/@aparajita/capacitor-secure-storage
           ! grep -Rqs 'github.com/evgenyneu/keychain-swift.git' node_modules/@aparajita/capacitor-secure-storage
+          ! grep -Rqs 'github.com/ionic-team/ion-ios-filesystem.git' node_modules/@capacitor/filesystem
 
       - name: Verify native navigation contract
         shell: bash
@@ -140,6 +144,7 @@ jobs:
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            -skipPackageUpdates \
             CODE_SIGNING_ALLOWED=NO \
             ONLY_ACTIVE_ARCH=NO \
             ARCHS=arm64 \
