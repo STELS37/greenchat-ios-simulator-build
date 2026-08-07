@@ -94,8 +94,9 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Info.plist")" = app.greenchat
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Info.plist")" = "$GC_BUILD_NUMBER"
           exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")"
-          lipo -verify_arch arm64 "$app/$exe"
-          lipo -info "$app/$exe" | tee "$RUNNER_TEMP/architectures.txt"
+          archs="$(lipo -archs "$app/$exe")"
+          printf '%s\n' "$archs" | tee "$RUNNER_TEMP/architectures.txt"
+          printf '%s\n' "$archs" | tr ' ' '\n' | grep -qx arm64
           cp -R "$app" "$RUNNER_TEMP/GreenChat.app"
           cd "$RUNNER_TEMP" && zip -qry GreenChat-iOS-Simulator.zip GreenChat.app
           unzip -t GreenChat-iOS-Simulator.zip | tee simulator-zip-verify.txt
