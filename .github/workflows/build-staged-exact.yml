@@ -30,9 +30,10 @@ jobs:
           cd source/mobile
           source_sha="$(tr -d '\r\n' < SOURCE_SHA.txt)"
           [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
-          mapfile -t builds < <(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' ios/App/App.xcodeproj/project.pbxproj | sed -E 's/.*= ([0-9]+);/\1/' | sort -u)
-          test "${#builds[@]}" -eq 1
-          build="${builds[0]}"
+          builds="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' ios/App/App.xcodeproj/project.pbxproj | sed -E 's/.*= ([0-9]+);/\1/' | sort -u)"
+          build_count="$(printf '%s\n' "$builds" | sed '/^$/d' | wc -l | tr -d ' ')"
+          test "$build_count" -eq 1
+          build="$builds"
           python3 - "$source_sha" <<'PY'
           import json, pathlib, sys
           source_sha=sys.argv[1]
