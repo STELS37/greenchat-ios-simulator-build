@@ -28,6 +28,36 @@
   var appMode = !forceSite && (forceApp || appProtocol || appHash || standalone || hasSession || automated);
   root.setAttribute("data-gc-mode", appMode ? "app" : "site");
 
+  /* Is this session English?
+     On the marketing pages `root.lang` is authoritative: `/` ships lang="ru" and `/en/` ships lang="en",
+     and no script rewrites it before the download copy is rendered.
+     In APP mode it is not: both `clients/web/index.html` and the packaged `www/index.html` ship
+     lang="ru", and the only writer of `<html lang>` is the app bundle itself (ui/src/document_shell.ts).
+     When the bundle fails to load that writer never runs, so a failure message keyed off `root.lang`
+     is Russian for everyone. Measured on an ephemeral stand (127.0.0.1:9571, headless Chromium 390x780,
+     navigator.languages = ["en-US"], data-app-entry pointed at a missing chunk, 2026-08-07):
+     data-gc-mode="app", documentElement.lang "ru", and the English visitor read a Russian sentence.
+     So app mode resolves the language exactly like the bundle would: the device-local preference
+     `gc.lang` first (clients/web/src/main.ts), then the platform language list. */
+  function isEnglish() {
+    if (appMode) {
+      var stored = null;
+      try { stored = localStorage.getItem("gc.lang"); } catch (_err) { stored = null; }
+      if (stored === "ru") return false;
+      if (stored === "en") return true;
+      var tags = [];
+      try { tags = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]; } catch (_err) { tags = []; }
+      for (var i = 0; i < tags.length; i += 1) {
+        var tag = String(tags[i] || "").toLowerCase();
+        if (tag.indexOf("ru") === 0) return false;
+        if (tag.indexOf("en") === 0) return true;
+      }
+      /* main.ts falls back to English when the platform lists neither language. */
+      return true;
+    }
+    return String(root.lang || "").toLowerCase().indexOf("en") === 0;
+  }
+
   if (appMode) {
     var styleMarker = document.querySelector('meta[name="gc-app-style"]');
     if (styleMarker) {
@@ -47,7 +77,9 @@
           var host = document.getElementById("app");
           if (!host) return;
           host.removeAttribute("aria-busy");
-          host.textContent = "Не удалось загрузить Green Chat. Проверьте соединение и обновите страницу.";
+          host.textContent = isEnglish()
+            ? "Green Chat failed to load. Check your connection and reload the page."
+            : "Не удалось загрузить Green Chat. Проверьте соединение и обновите страницу.";
         }
         if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", showFailure, { once: true });
         else showFailure();
@@ -58,7 +90,7 @@
 
   function formatMb(bytes) {
     if (typeof bytes !== "number" || !isFinite(bytes) || bytes <= 0) return "";
-    var english = String(root.lang || "").toLowerCase().indexOf("en") === 0;
+    var english = isEnglish();
     var locale = english ? "en-US" : "ru-RU";
     return (bytes / 1000000).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (english ? " MB" : " МБ");
   }
@@ -124,7 +156,7 @@
     var chosen = data.platforms[recommended] || data.platforms.web;
     var primary = document.querySelector("[data-primary-download]");
     var note = document.querySelector("[data-primary-note]");
-    var english = String(root.lang || "").toLowerCase().indexOf("en") === 0;
+    var english = isEnglish();
     var windowsNative = recommended === "windows" && chosen && chosen.status === "available";
     var labels = english ? {
       android: "Download for Android",

@@ -120,7 +120,9 @@ jobs:
           xcrun simctl boot "$u"; xcrun simctl bootstatus "$u" -b
           xcrun simctl install "$u" "$RUNNER_TEMP/GreenChat.app"
           xcrun simctl launch --terminate-running-process "$u" app.greenchat | tee "$RUNNER_TEMP/simulator-launch.txt"
-          sleep 5
+          sleep 12
+          xcrun simctl io "$u" screenshot "$RUNNER_TEMP/simulator-screen-12s.png"
+          test -s "$RUNNER_TEMP/simulator-screen-12s.png"
           xcrun simctl get_app_container "$u" app.greenchat app | tee "$RUNNER_TEMP/simulator-app-container.txt"
           printf 'device=%s\nruntime=%s\n' "$DN" "$RN" | tee "$RUNNER_TEMP/simulator-target.txt"
       - name: Publish verified ZIP
@@ -145,4 +147,5 @@ jobs:
           gh release create "$GC_RELEASE_TAG" -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
             --title "TEST — GreenChat iOS $GC_BUILD_NUMBER Verified" --notes-file "$RUNNER_TEMP/notes.md" \
             "$RUNNER_TEMP/$GC_RELEASE_ASSET" "$RUNNER_TEMP/$GC_RELEASE_ASSET.sha256" \
-            "$RUNNER_TEMP/architectures.txt" "$RUNNER_TEMP/xcode-version.txt" "$RUNNER_TEMP/simulator-target.txt"
+            "$RUNNER_TEMP/architectures.txt" "$RUNNER_TEMP/xcode-version.txt" "$RUNNER_TEMP/simulator-target.txt" \
+            "$RUNNER_TEMP/simulator-screen-12s.png"

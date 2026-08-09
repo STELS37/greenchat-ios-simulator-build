@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "release_id": "green-chat-1.0.0-beta.9-android.1000055-rev.94",
+  "release_id": "green-chat-1.0.0-beta.9-android.1000074-rev.195",
   "channel": "beta",
   "current_version": "1.0.0-beta.9",
-  "published_at": "2026-08-07T11:43:03Z",
+  "published_at": "2026-08-09T15:58:12Z",
   "notes": "GreenChat 1.0.0-beta.9: обновления на ПК теперь обнаруживаются не позднее чем через минуту, а при запуске, восстановлении интернета, возвращении из трея или фокусе окна — сразу. Проверка манифеста обходит HTTP-кэш и не создаёт повторных запросов или уведомлений. Также включены последние исправления звонков, удаления сообщений, голосовых сообщений и Premium-интерфейса.",
   "platforms": {
     "web": {
@@ -13,15 +13,14 @@
     },
     "android": {
       "status": "available",
-      "version_code": 1000055,
+      "version_code": 1000074,
       "min_os": "Android 7.0",
       "min_supported": "0.0.0",
-      "artifact_filename": "GreenChat-1.0.0-beta.9-android-1000055-release.apk",
-      "size_bytes": 56958853,
-      "sha256": "2c26dfcc45bec65116350367e899ee50e66f14201f02f10ee4fb5972ec2c2f02",
-      "store_status": "not_published",
+      "artifact_filename": "GreenChat-1.0.0-beta.9-android-1000074-release.apk",
+      "size_bytes": 57071968,
+      "sha256": "e5c36240d46a26a6fb08c5366fe4d53ddde6332d0e59fb4b229d044cc72eea6f",
       "version": "1.0.0-beta.9",
-      "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9-android-1000055-release.apk"
+      "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9-android-1000074-release.apk"
     },
     "ios": {
       "status": "web",
@@ -31,22 +30,22 @@
     },
     "windows": {
       "status": "available",
-      "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1683-windows-x64-setup.exe",
+      "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1808-windows-x64-setup.exe",
       "native_status": "available",
-      "version": "1.0.0-beta.9.0.1683",
+      "version": "1.0.0-beta.9.0.1808",
       "arch": "x86_64",
       "min_os": "Windows 10 1903",
       "min_supported": "0.0.0",
-      "artifact_filename": "GreenChat-1.0.0-beta.9.0.1683-windows-x64-setup.exe",
-      "size_bytes": 16808160,
-      "sha256": "840f03b155178ebb747900d3c2dd46f7519e06b3a5854c80b19196d3a4204180",
+      "artifact_filename": "GreenChat-1.0.0-beta.9.0.1808-windows-x64-setup.exe",
+      "size_bytes": 16988668,
+      "sha256": "e7c0e03dcc592b2f237a27704234ebdce8961289a16a877ed0ea06f76de38bb7",
       "signed": false,
       "updater": {
-        "artifact_filename": "GreenChat-1.0.0-beta.9.0.1683-windows-x64-raw.nsis.zip",
-        "size_bytes": 16808160,
-        "sha256": "840f03b155178ebb747900d3c2dd46f7519e06b3a5854c80b19196d3a4204180",
-        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMmExZi95N1JvdlZSZktHK1BveE5uLzNua0hocFpac25mV3FiMnMwQUswTjUxUDI2RjdONHJHMlpndHpVVkxKSngvUkt2ZkhhVzkxdlZHenJCNGhiQ2dVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTAxMjU0CWZpbGU6R3JlZW5DaGF0LTEuMC4wLWJldGEuOS4wLjE2ODMtd2luZG93cy14NjQtcmF3Lm5zaXMuemlwCmE0djQ5c3orVktwM01mRTdKc1EzeWV6dnpkSm82Q3hrMmIzMXBNc1gzdmJMUVEreUdKeWVOOXdHRmNSVHUvOUZFVVNwOXoyMlhkb3NMc1ppV09ZZkNnPT0K",
-        "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1683-windows-x64-raw.nsis.zip"
+        "artifact_filename": "GreenChat-1.0.0-beta.9.0.1808-windows-x64-raw.nsis.zip",
+        "size_bytes": 16988668,
+        "sha256": "e7c0e03dcc592b2f237a27704234ebdce8961289a16a877ed0ea06f76de38bb7",
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMmNGNzg1M1A4RE1Ya2lkaWdTUFVGZjdNcTRTMnRnZitSTE41MHhHeHJMSHJBeTUzcnZKZFM1YkJtTm8vMFF2QTRhTUsrV0tsRWhFcDlVYTAwVW13bUF3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTQ4ODMxCWZpbGU6R3JlZW5DaGF0LTEuMC4wLWJldGEuOS4wLjE4MDgtd2luZG93cy14NjQtcmF3Lm5zaXMuemlwCjRSVXlCdHV2SXc2aDN0SXhJSGZFcjJGMWpvOXpjMnU3L0t5SHJiRkhsSGhFVDhtb1lPZUpiNkcyeTllMHBybk9QUE1EZFNxU2NRb2ZZaTRaeWZleEJBPT0K",
+        "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1808-windows-x64-raw.nsis.zip"
       }
     },
     "macos": {
@@ -57,35 +56,35 @@
     },
     "linux": {
       "status": "available",
-      "version": "1.0.0-beta.9.0.1694",
+      "version": "1.0.0-beta.9.0.2009",
       "arch": "x86_64",
       "min_supported": "0.0.0",
       "packages": {
         "appimage": {
-          "artifact_filename": "GreenChat-1.0.0-beta.9.0.1694-linux-x86_64.AppImage",
-          "size_bytes": 118991352,
-          "sha256": "e210819250f7a7e11c00b3d81d078947b0b64b331d226bc7e70f73c0a3a0d37f",
-          "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMlN5eFZtRnVJaitnZWpzc2ZIZDE2bGRmTnhxTTJSSENJeVNwTnptbkN5aE9nNSt3cVBoZXM5T2tONjhaamZBWGVUMVdhblBLYzgwblZDNDh1azBHOEFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTAyMzIzCWZpbGU6R3JlZW5DaGF0XzEuMC4wLWJldGEuOS4wLjE2OTRfYW1kNjQuQXBwSW1hZ2UKQWhjVCtkVFFObU5wcGFSWnlnTTFQQVNuRUt5OGkwUW9tNHJIbk9laE5tMHkwd1I0NmZUd2cvYWVId1Flcmt1VDFyNWp3K2JtVUQ4eG85eWpKV2RBQXc9PQo=",
-          "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1694-linux-x86_64.AppImage"
+          "artifact_filename": "GreenChat-1.0.0-beta.9.0.2009-linux-x86_64.AppImage",
+          "size_bytes": 119310840,
+          "sha256": "820b00ea79c6a28bb7665aa75d12e9b6e69cf10f999adb8a0bb3a08e49ce15c0",
+          "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMlRPakltbjNLQUZvRVhFSUQvUFdvNmpOVGs0QTJhNXpDd0Z4aEFHd21kcnlTN3dHUXJhS1JtZFlhYTI4czNVNFE1MDQyU0pHdUU5czdTa2pxQm12QUFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MjIxNDc1CWZpbGU6R3JlZW5DaGF0XzEuMC4wLWJldGEuOS4wLjIwMDlfYW1kNjQuQXBwSW1hZ2UKSnhwa05SSzg3STBRaHN1MTlsK05NWGlobVZFSmhCTnptK0N3S0cxdngra2tVS2h0MndPRTFxNUxKWmNFdnJuTk42R3hXZTZ4ZFNJdml3dUNURGV2Qnc9PQo=",
+          "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.2009-linux-x86_64.AppImage"
         },
         "deb": {
-          "artifact_filename": "GreenChat-1.0.0-beta.9.0.1694-linux-amd64.deb",
-          "size_bytes": 15982408,
-          "sha256": "bfe24926f510c91f768db219bfa867fa3a7809d7eda8f4bcbca0e09cecc6fc8f",
-          "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMlFGdzZDS1NWQnVRak9hMmErbjRQdHlucTVLNHI3bDBkWG8wbHhqQ0xlYW5NbXNTaGQ5UVllWGREUFRNNGdOVU1vcE5FaTNsWUh1RE11RnIyU3NIQlFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTAyMzQxCWZpbGU6R3JlZW5DaGF0XzEuMC4wLWJldGEuOS4wLjE2OTRfYW1kNjQuZGViCkhsMWw1RVBsMzQ2VXBVczFXMSt4TWR5ZFlBTFBjS3R0UjZkRkUwcUpPTGJkcG84SElKakpGZVNsTTVqTVdSNW0vQStVd2VSYVRGemJGYkRWd2VIWkNRPT0K",
-          "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1694-linux-amd64.deb"
+          "artifact_filename": "GreenChat-1.0.0-beta.9.0.2009-linux-amd64.deb",
+          "size_bytes": 16300764,
+          "sha256": "49a93ff03ca61a77eea72f58ad8d335c3dcae398706559b89a363961e7caa683",
+          "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMlRLSDBOYk9iZWxFc1NNRTEyZlNuWkozcFZjWXU4TmxpU1lZQzRuRlRqWXZQTWt0OFNVTmVuSVdySFUrbW82SGdkclB0ZlpKcklGaTM5SFFqcmRtVEFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MjIxNDkzCWZpbGU6R3JlZW5DaGF0XzEuMC4wLWJldGEuOS4wLjIwMDlfYW1kNjQuZGViClZ2U3IxaWIzaFNtL1ZQcVo1WDFFZ1BLM29tQXp5M3IraU1Ia2czSTN0cmw1U3dUbHFJWnFVUncyKzNPQm1LS3dWUU1VQTNoSUZyUEd0MXdjTGwxNUN3PT0K",
+          "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.2009-linux-amd64.deb"
         },
         "rpm": {
-          "artifact_filename": "GreenChat-1.0.0-beta.9.0.1694-linux-x86_64.rpm",
-          "size_bytes": 21166117,
-          "sha256": "62976b387e73ba1498179c3b01b175752eaf5320f79348c4f20370848064c0d7",
-          "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMlFOdVpRUmNUczB5N09tR0xFQ29sVVNTb3E5NjV1bFcyQjNXQS9ORjVsSitua1dmSEsvcXVncUFtbVlQZDhEWlZ3RDZocFdPdWRXU1F6eENUcjdNR1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTAyMzI0CWZpbGU6R3JlZW5DaGF0LTEuMC4wLWJldGEuOS4wLjE2OTQtMS54ODZfNjQucnBtCjdxdElNdjM0dVhHMlVHNjBuZFNyTzFpWm9PWllyNlA2UjIxMUZ4dVdnaDRzaGVMRTRUQ2FHRzZnODdkTlNRQ2pmVVRzVGMvUWpDYjJsRjBhNWNpTkJnPT0K",
-          "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1694-linux-x86_64.rpm"
+          "artifact_filename": "GreenChat-1.0.0-beta.9.0.2009-linux-x86_64.rpm",
+          "size_bytes": 21476409,
+          "sha256": "9aa0a7ac27082db856c1847c5da656884303b1e1ea7efb6c68a1e52dc2aa888c",
+          "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRckVIZUxTSm8zMlJPQTFBRUk4U0kzUDRHQjZuN1ZvQ2h5QkltUU9mM1lRbytYaUx0a1Q3blUyQkNiM1NwNFlIcUVhZ1h3OUFscGloZHJRTnZEQ3FnWkI0cDVMMTc2RUE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MjIxNDc1CWZpbGU6R3JlZW5DaGF0LTEuMC4wLWJldGEuOS4wLjIwMDktMS54ODZfNjQucnBtCit3eWdkeGFnWk5DWHJWVmdkZnAvUkVRNW1PV25ZdGl3Y0lTTlU5ay85S1JGbHhEZmpnbko4SnpsVHJGUFU4a2hpSnVhMFAvemJRTWhyM090S1NKQUN3PT0K",
+          "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.2009-linux-x86_64.rpm"
         }
       },
-      "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.1694-linux-x86_64.AppImage"
+      "url": "/v1/client/updates/artifact/GreenChat-1.0.0-beta.9.0.2009-linux-x86_64.AppImage"
     }
   },
-  "catalog_revision": 94,
-  "updated_at": "2026-08-07"
+  "catalog_revision": 195,
+  "updated_at": "2026-08-09"
 }
