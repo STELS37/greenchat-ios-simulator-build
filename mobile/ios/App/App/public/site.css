@@ -536,10 +536,18 @@ html[data-gc-mode="app"] .gc-boot-bar > span {
   to   { transform: translateX(240%); }
 }
 
+/* site-loader resolves the persisted app preference synchronously, before the app bundle. This
+   explicit attribute wins over the OS so Light-on-dark-phone and Dark-on-light-phone never flash
+   through the opposite surface. The media-query branch is only a defensive fallback for an older
+   loader paired with this stylesheet during a rolling static-asset update. */
+html[data-gc-mode="app"][data-gc-boot-theme="dark"] .gc-boot { background: #0f1512; }
+html[data-gc-mode="app"][data-gc-boot-theme="dark"] .gc-boot-name { color: #e8f1ed; }
+html[data-gc-mode="app"][data-gc-boot-theme="dark"] .gc-boot-bar { background: rgba(25, 189, 110, .18); }
+
 @media (prefers-color-scheme: dark) {
-  html[data-gc-mode="app"] .gc-boot { background: #0f1512; }
-  html[data-gc-mode="app"] .gc-boot-name { color: #e8f1ed; }
-  html[data-gc-mode="app"] .gc-boot-bar { background: rgba(25, 189, 110, .18); }
+  html[data-gc-mode="app"]:not([data-gc-boot-theme]) .gc-boot { background: #0f1512; }
+  html[data-gc-mode="app"]:not([data-gc-boot-theme]) .gc-boot-name { color: #e8f1ed; }
+  html[data-gc-mode="app"]:not([data-gc-boot-theme]) .gc-boot-bar { background: rgba(25, 189, 110, .18); }
 }
 
 /* Reduced motion still gets a boot screen — it simply stops moving. A static bar would read as a

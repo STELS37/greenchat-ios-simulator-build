@@ -28,6 +28,32 @@
   var appMode = !forceSite && (forceApp || appProtocol || appHash || standalone || hasSession || automated);
   root.setAttribute("data-gc-mode", appMode ? "app" : "site");
 
+  /* Paint the boot surface in the SAME effective theme the app will use before importing any app
+     chunk. `gc.theme` is a JSON ThemeState snapshot (ui/src/theme.ts); consulting only the OS here
+     made an explicit Light-on-dark-phone session flash through a near-black boot surface, while an
+     explicit Dark-on-light-phone session did the inverse. Besides looking like a WebView reset, that
+     mismatch also left the browser/native theme-color on the wrong surface until main.ts ran. */
+  function initialBootTheme() {
+    var pref = null;
+    try {
+      var raw = localStorage.getItem("gc.theme");
+      if (raw) {
+        var saved = JSON.parse(raw);
+        if (saved && (saved.pref === "light" || saved.pref === "dark" || saved.pref === "system")) pref = saved.pref;
+      }
+    } catch (_err) { pref = null; }
+    if (pref === "light" || pref === "dark") return pref;
+    try { return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+    catch (_err) { return "light"; }
+  }
+
+  if (appMode) {
+    var bootTheme = initialBootTheme();
+    root.setAttribute("data-gc-boot-theme", bootTheme);
+    var themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) themeMeta.setAttribute("content", bootTheme === "dark" ? "#0f1512" : "#f3f7f5");
+  }
+
   /* Is this session English?
      On the marketing pages `root.lang` is authoritative: `/` ships lang="ru" and `/en/` ships lang="en",
      and no script rewrites it before the download copy is rendered.
