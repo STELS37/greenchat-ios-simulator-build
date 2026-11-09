@@ -1,16 +1,10 @@
-# GreenChat iOS — Xcode on macOS
+# GreenChat iOS — Mac / Xcode
 
-## Quick start
+GreenChat's iOS app is a Capacitor + WKWebView application with a native Swift/UIKit shell. The bundled web interface is included in `mobile/ios/App/App/public`.
 
-1. Download and extract this repository ZIP.
-2. Open Terminal in the extracted repository folder.
-3. Run:
+## One-command setup
 
-```bash
-bash mobile/prepare-xcode-mac.sh
-```
-
-The script installs the locked npm dependencies, restores the two vendored CocoaPods source archives, runs `pod install`, and opens `App.xcworkspace`.
+Requirements: macOS, Xcode 26+, Node.js/npm, and CocoaPods.
 
 If Node.js or CocoaPods is missing:
 
@@ -18,24 +12,49 @@ If Node.js or CocoaPods is missing:
 brew install node cocoapods
 ```
 
-## Open the correct file
+From the extracted repository root:
 
-Open:
+```bash
+cd mobile
+bash setup-mac.sh
+```
 
-`mobile/ios/App/App.xcworkspace`
+The setup script:
+1. Checks macOS, Xcode, Node.js and CocoaPods.
+2. Verifies the complete bundled GreenChat web payload against its SHA-256 manifest and verifies that it matches `SOURCE_SHA.txt`.
+3. Installs the locked npm dependency graph using `npm ci`.
+4. Restores the two vendored CocoaPods source archives.
+5. Runs `pod install`.
+6. Verifies the generated Pods project, Xcode workspace and shared `App` scheme.
+7. Opens `ios/App/App.xcworkspace` in Xcode.
 
-Do not open the `.xcworkspace` folder itself in Finder. Open the workspace bundle after the preparation script has completed. The script runs CocoaPods, which generates the workspace contents and Pods project.
+**Open the workspace, not the containing folder.** Because GreenChat uses CocoaPods, the correct Xcode entry point is `mobile/ios/App/App.xcworkspace`.
 
-## Xcode
+## Build in Xcode
 
 - Scheme: `App`
-- Bundle ID: `app.greenchat`
+- Bundle identifier: `app.greenchat`
+- Version: `1.0.0`
 - Build: `1000079`
-- Recommended simulator for system Liquid Glass: iPhone with iOS 26 Simulator
+- Recommended simulator: iPhone with iOS 26
 - Press Run (▶).
 
-For a physical iPhone, configure your Apple Development Team in Signing & Capabilities.
+The native UIKit bottom bar uses Apple's system Liquid Glass on iOS 26. The web interface is rendered by WKWebView and includes iOS-specific glass styles.
 
-## Included app architecture
+## Build from Terminal
 
-GreenChat uses a Capacitor iOS shell with WKWebView and a bundled web payload. The native Swift project, plugins, assets, and bundled interface are included. The complete private frontend/backend development source is not part of this iOS builder repository.
+After setup, from `mobile`:
+
+```bash
+bash build-simulator.sh
+```
+
+This compiles an ARM64 iOS Simulator app without code signing and verifies its bundle ID and build number. The output is under `.derived-data/Build/Products/Release-iphonesimulator/`.
+
+## Physical iPhone
+
+Connect the iPhone, select it as the Xcode destination, and configure your Apple Development Team under Signing & Capabilities. Simulator builds do not require device provisioning.
+
+## Architecture
+
+MyVPN uses a native SwiftUI overlay on the upstream sing-box Apple client. GreenChat uses Capacitor + WKWebView. Both use the same deterministic Mac setup approach, but the native projects and dependency resolvers differ: GreenChat uses npm + CocoaPods and opens an Xcode workspace.
