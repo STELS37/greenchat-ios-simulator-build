@@ -18,6 +18,11 @@ command -v unzip >/dev/null 2>&1 || fail "unzip is required."
 command -v python3 >/dev/null 2>&1 || fail "python3 is required."
 
 mkdir -p "$CACHE"
+if [[ -s "$PUBLIC/.gc-build-profile.json" ]] && grep -Fq "$APK_SHA256" "$PUBLIC/.gc-build-profile.json"; then
+  echo "==> Existing iOS payload matches the pinned release; verifying without re-downloading the APK"
+  node "$ROOT/verify-ios-payload.cjs"
+  exit 0
+fi
 if [[ ! -s "$APK" ]] || [[ "$(shasum -a 256 "$APK" | awk '{print $1}')" != "$APK_SHA256" ]]; then
   echo "==> Downloading the pinned GreenChat 1.0.0-beta.10 build 1000693"
   rm -f "$APK.part"
@@ -52,7 +57,7 @@ SOURCE_SHA="$(tr -d '\r\n' < "$ROOT/SOURCE_SHA.txt")"
 [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || fail "SOURCE_SHA.txt must contain a full Git commit SHA."
 
 echo "==> Generating the SHA-256 manifest for the extracted iOS payload"
-python3 - "$SOURCE_PUBLIC" "$SOURCE_SHA" <<'PY'
+python3 - "$SOURCE_PUBLIC" "$SOURCE_SHA" "$APK_SHA256" <<'PY'
 import hashlib
 import json
 import sys
@@ -60,6 +65,7 @@ from pathlib import Path
 
 root = Path(sys.argv[1])
 source_sha = sys.argv[2]
+apk_sha256 = sys.argv[3]
 files = []
 for path in sorted(root.rglob("*")):
     if not path.is_file() or path.name == ".gc-build-profile.json":
@@ -78,6 +84,12 @@ manifest = {
     "files": files,
     "profile": "ios-development",
     "schema": 1,
+    "source_artifact": {
+        "filename": "google-universal-1000693.apk",
+        "sha256": apk_sha256,
+        "version": "1.0.0-beta.10",
+        "build": 1000693,
+    },
 }
 canonical = json.dumps(files, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 manifest["payload_sha256"] = hashlib.sha256(canonical).hexdigest()
