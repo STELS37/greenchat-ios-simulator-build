@@ -43,6 +43,8 @@ SOURCE_PUBLIC="$STAGING/assets/public"
 
 ENTRY_JS="$(sed -nE 's/.*name="gc-app-entry" content="([^"]+)".*/\1/p' "$SOURCE_PUBLIC/index.html" | head -n 1)"
 ENTRY_CSS="$(sed -nE 's/.*id="gc-app-style" rel="stylesheet" href="([^"]+)".*/\1/p' "$SOURCE_PUBLIC/index.html" | head -n 1)"
+ENTRY_JS="${ENTRY_JS#/}"
+ENTRY_CSS="${ENTRY_CSS#/}"
 [[ -n "$ENTRY_JS" && -s "$SOURCE_PUBLIC/$ENTRY_JS" ]] || fail "main JavaScript entrypoint is missing: $ENTRY_JS"
 [[ -n "$ENTRY_CSS" && -s "$SOURCE_PUBLIC/$ENTRY_CSS" ]] || fail "main stylesheet is missing: $ENTRY_CSS"
 
