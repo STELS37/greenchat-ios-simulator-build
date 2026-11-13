@@ -69,7 +69,7 @@ const entry = html.match(/name="gc-app-entry" content="([^"]+)"/);
 const stylesheet = html.match(/id="gc-app-style" rel="stylesheet" href="([^"]+)"/);
 if (!entry || !stylesheet) fail("app entrypoint or primary stylesheet reference is missing");
 for (const asset of [entry[1], stylesheet[1]]) {
-  const relative = asset.replace(/^\\//, "");
+  const relative = asset.startsWith("/") ? asset.slice(1) : asset;
   if (!fs.existsSync(path.join(payloadRoot, relative))) fail("referenced app asset is missing: " + relative);
 }
 console.log("Main app entrypoint: " + entry[1]);
