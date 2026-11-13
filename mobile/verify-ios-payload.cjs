@@ -57,11 +57,21 @@ for (const entry of profile.files) {
   totalBytes += stat.size;
 }
 
-for (const required of ["index.html", "gc-preboot.js", "gc-bridge.js", "gc-ios-liquid-glass.css"]) {
+for (const required of ["index.html", "gc-preboot.js", "gc-bridge.js", "gc-store-update.js", "gc-ios-liquid-glass.css"]) {
   if (!fs.existsSync(path.join(payloadRoot, required))) fail("required iOS web asset is missing: " + required);
 }
 
 console.log("GreenChat iOS payload: PASS");
 console.log("Source SHA: " + sourceSha);
 console.log("Files verified: " + profile.files.length);
+const html = fs.readFileSync(path.join(payloadRoot, "index.html"), "utf8");
+const entry = html.match(/name="gc-app-entry" content="([^"]+)"/);
+const stylesheet = html.match(/id="gc-app-style" rel="stylesheet" href="([^"]+)"/);
+if (!entry || !stylesheet) fail("app entrypoint or primary stylesheet reference is missing");
+for (const asset of [entry[1], stylesheet[1]]) {
+  const relative = asset.replace(/^\\//, "");
+  if (!fs.existsSync(path.join(payloadRoot, relative))) fail("referenced app asset is missing: " + relative);
+}
+console.log("Main app entrypoint: " + entry[1]);
+console.log("Main stylesheet: " + stylesheet[1]);
 console.log("Bytes verified: " + totalBytes);
