@@ -1,0 +1,14 @@
+# Local build and dependency output
+node_modules/
+vendor/
+.cache/
+.derived-data/
+.derived-data-device/
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+dist/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+xcodebuild*.log
