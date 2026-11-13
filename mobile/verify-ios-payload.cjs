@@ -31,6 +31,11 @@ try {
 if (profile.build_id !== sourceSha) {
   fail("payload/source mismatch: profile=" + profile.build_id + " source=" + sourceSha);
 }
+if (profile.source_artifact?.sha256 !== "d6b84254c2fd0351ad0398e9c75d92740a53e8312b8e26d35173184eabd97316" ||
+    profile.source_artifact?.build !== 1000693 ||
+    profile.source_artifact?.version !== "1.0.0-beta.10") {
+  fail("payload is not from the pinned GreenChat 1.0.0-beta.10 build 1000693");
+}
 if (!Array.isArray(profile.files) || profile.files.length === 0) {
   fail("build profile has no file manifest");
 }
