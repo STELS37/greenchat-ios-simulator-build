@@ -44,7 +44,6 @@ xcodebuild \
   -derivedDataPath "$DERIVED" \
   -archivePath "$ARCHIVE" \
   -allowProvisioningUpdates \
-  -onlyUsePackageVersionsFromResolvedFile \
   PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
   MARKETING_VERSION="$VERSION" \
   CURRENT_PROJECT_VERSION="$BUILD" \
